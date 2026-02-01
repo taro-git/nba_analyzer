@@ -1,0 +1,2 @@
+routes から呼び出す
+model を扱う

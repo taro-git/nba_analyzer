@@ -1,0 +1,17 @@
+# build artifacts
+dist
+build
+coverage
+
+# dependencies
+node_modules
+
+# generated files
+.react-router
+generated
+
+# public assets
+public
+
+# lock files
+package-lock.json
