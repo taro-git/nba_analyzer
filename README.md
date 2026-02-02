@@ -16,22 +16,28 @@ This application analyzes NBA players and teams based on box scores and play-by-
     ```
 
 ### for dev
-1. Run following commands for client  
-    ```sh
-    cd client
-    npm run install
-    npm run dev
-    ```
-1. Run following commands for rest api server  
-    ```sh
-    cd server
-    poetry install
-    poetry run uvicorn rest_api.main:app --reload
-    ```
-1. Run following commands for batch server  
-    ```sh
-    poetry run uvicorn batch.main:app --reload
-    ```
+* docker
+  1. Run following commands (Run same commands to rebuild client)
+      ```sh
+      docker compose --profile dev up --build -d
+      ```
+* local
+  1. Run following commands for client  
+      ```sh
+      cd client
+      npm run install
+      npm run dev
+      ```
+  1. Run following commands for rest api server  
+      ```sh
+      cd server
+      poetry install
+      poetry run uvicorn rest_api.main:app --reload
+      ```
+  1. Run following commands for batch server  
+      ```sh
+      poetry run uvicorn batch.main:app --reload
+      ```
 
 # lint, test
 * client  
