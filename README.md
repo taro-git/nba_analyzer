@@ -47,6 +47,7 @@ This application analyzes NBA players and teams based on box scores and play-by-
     npm run lint
     npm run format
     # testing
+    npm run test
     ```
 * server  
     ```sh
@@ -55,5 +56,6 @@ This application analyzes NBA players and teams based on box scores and play-by-
     poetry run ruff format .
     poetry run ruff check . --fix
     # testing
+    poetry run pytest
     ```
 
