@@ -39,8 +39,8 @@ services:
       - DB_NAME=nba_analyzer
       - DB_USER=nba_analyzer_user
       - DB_PASSWORD=nba_analyzer_password
-    # depends_on:
-    #   - postgres
+    depends_on:
+      - postgres
 
   app-prod:
     profiles: ["prod"]
@@ -58,14 +58,14 @@ services:
       - TZ=Asia/Tokyo
       - PYTHONDONTWRITEBYTECODE=1
       - PYTHONUNBUFFERED=1
-      - PYTHONPATH=/app
+      - PYTHONPATH=/app/server
       - DB_HOST=postgres
       - DB_PORT=5432
       - DB_NAME=nba_analyzer
       - DB_USER=nba_analyzer_user
       - DB_PASSWORD=nba_analyzer_password
-#     depends_on:
-#       - postgres
+    depends_on:
+      - postgres
 
 #   batch-dev:
 #     profiles: ["dev"]
@@ -114,20 +114,19 @@ services:
 #     depends_on:
 #       - postgres
 
-#   postgres:
-#     image: postgres:15
-#     ports:
-#       - "5432:5432"
-#     restart: "always"
-#     environment:
-#       - POSTGRES_DB=nba_analyzer
-#       - POSTGRES_USER=nba_analyzer_user
-#       - POSTGRES_PASSWORD=nba_analyzer_password
-#     volumes:
-#       - postgresql_data:/var/lib/postgresql/data
+  postgres:
+    image: postgres:18
+    ports:
+      - "5432:5432"
+    restart: "always"
+    environment:
+      - POSTGRES_DB=nba_analyzer
+      - POSTGRES_USER=nba_analyzer_user
+      - POSTGRES_PASSWORD=nba_analyzer_password
+    volumes:
+      - postgresql-data:/var/lib/postgresql
 
 volumes: # /var/lib/docker/volumes/
-#   client-temp:
   app-temp:
 #   batch-temp:
-#   postgresql_data:
+  postgresql-data:

@@ -1,4 +1,7 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from sqlmodel import Session, select
+
+from common.db import get_session
 
 api_router = APIRouter(prefix="/api")
 
@@ -9,5 +12,5 @@ async def test():
 
 
 @api_router.get("/{path:path}")
-async def not_found():
-    return {"error": "not found"}
+async def not_found(session: Session = Depends(get_session)):
+    return session.exec(select(SQLModel)).all()
