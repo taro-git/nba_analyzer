@@ -3,8 +3,10 @@ from fastapi import APIRouter
 # from fastapi import Depends
 # from sqlmodel import Session, select
 # from common.db import get_session
+from rest_api.routes.standings.regular_season import regular_season_standings_router
 
 api_router = APIRouter(prefix="/api")
+api_router.include_router(regular_season_standings_router)
 
 
 @api_router.get("/test")
