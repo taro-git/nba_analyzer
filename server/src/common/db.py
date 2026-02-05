@@ -1,4 +1,5 @@
 import os
+from typing import Generator
 
 from sqlmodel import Session, create_engine
 
@@ -15,6 +16,6 @@ engine = create_engine(
 )
 
 
-def get_session():
+def get_session() -> Generator[Session]:
     with Session(engine) as session:
         yield session

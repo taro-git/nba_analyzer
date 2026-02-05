@@ -21,5 +21,5 @@ app.mount(
 
 
 @app.get("/view/{path:path}")
-async def route_client(path: str):
+async def route_client(path: str) -> FileResponse:
     return FileResponse(CLIENT_DIR / "index.html")
