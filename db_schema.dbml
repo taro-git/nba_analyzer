@@ -1,0 +1,160 @@
+// Use DBML to define your database structure
+// Docs: https://dbml.dbdiagram.io/docs
+
+Table season {
+  start_year integer [pk]
+}
+
+Enum conference {
+  "East"
+  "West"
+}
+
+Enum division {
+  "Atlantic"
+  "Central"
+  "SouthEast"
+  "NorthWest"
+  "Pacific"
+  "SouthWest"
+}
+
+Table team {
+  id integer [pk]
+  team_city varchar [not null]
+  team_name varchar [not null]
+  team_tricode varchar(3) [not null]
+  conference conference [not null]
+  division division [not null]
+
+  checks {
+    `conference = East && (division = Atlantic || division = Central || division = SouthEast)`
+    `conference = West && (division = NorthWest || division = Pacific || division = SouthWest)`
+  }
+}
+
+Table regular_season_team_standings {
+  season integer [ref: > season.start_year]
+  team_id integer [ref: > team.id]
+  rank integer [not null]
+  win integer [not null]
+  lose integer [not null]
+
+  indexes {
+    (season, team_id) [pk]
+  }
+}
+
+Table player {
+  id integer [pk]
+  name varchar [not null]
+  Abbreviation varchar [not null]
+  bod date [not null]
+  draft_year integer [not null]
+  position integer
+  team_id integer [ref: > team.id]
+}
+
+Table stats {
+  id integer [pk]
+  elapsed_sec integer [not null, note: 'elapsed time in the game. Ex) 2160 at the end of the 3rd quarter.']
+  sec integer [not null]
+  pts integer [not null]
+  oreb integer [not null]
+  dreb integer [not null]
+  ast integer [not null]
+  stl integer [not null]
+  blk integer [not null]
+  fg_a integer [not null]
+  fg_m integer [not null]
+  three_a integer [not null]
+  three_m integer [not null]
+  ft_a integer [not null]
+  ft_m integer [not null]
+  to integer [not null]
+  pf integer [not null]
+  plus_minus integer [not null]
+}
+
+Table player_stats {
+  stats_id integer [pk, ref: > stats.id]
+  player_id integer [not null, ref: > player.id]
+  season integer [not null, ref: > season.start_year]
+  num_of_played_games integer [not null]
+
+  indexes {
+    (player_id, season) [unique]
+  }
+}
+
+Enum game_status {
+  "Scheduled"
+  "Live"
+  "Final"
+}
+
+Enum game_category {
+  "Regular Season"
+  "Play Off"
+  "NBA Cup"
+}
+
+Table game {
+  id integer [pk]
+  game_id varchar(10) [not null]
+  season integer [not null, ref: > season.start_year]
+  category game_category [not null]
+  status game_status [not null]
+  start_epoc_sec integer [not null, note: 'Epoch seconds since the game started']
+  elapsed_sec integer [not null, note: 'elapsed time in the game. Ex) 2160 at the end of the 3rd quarter.']
+  home_team_id integer [not null, ref: > team.id]
+  away_team_id integer [not null, ref: > team.id]
+  home_score integer [not null]
+  away_score integer [not null]
+}
+
+Table game_player {
+  id integer [pk]
+  game_id integer [not null, ref: > game.id]
+  player_id integer [not null, ref: > player.id]
+  position integer
+  is_home bool [not null]
+  is_starter bool [not null]
+  is_active bool [not null]
+
+  indexes {
+    (game_id, player_id) [unique]
+  }
+}
+
+Table game_player_stats {
+  stats_id integer [pk, ref: > stats.id]
+  game_player_id integer [not null, ref: > game_player.id]
+
+  indexes {
+    (stats_id, game_player_id) [unique]
+  }
+}
+
+Table play_by_play {
+  game_id integer [ref: > game.id]
+  action_number integer [not null]
+  elapsed_sec integer [not null, note: 'elapsed time in the game. Ex) 2160 at the end of the 3rd quarter.']
+  player_id integer [ref: > game_player.id, note: 'if not personal event, personId can be 0']
+  x_legacy integer [not null, note: 'nullable in live']
+  y_legacy integer [not null, note: 'nullable in live']
+  description varchar [not null]
+  home_score integer [note: 'can be "" in stats']
+  away_score integer [note: 'can be "" in stats']
+  points_total integer [note: 'personal total points in live, home score plus away score in stats. there is not 0 in live.']
+  assist_player_id integer [ref: > game_player.id, note: 'only live']
+  assist_total integer [note: 'only live']
+  rebound_defensive_total integer [note: 'only live']
+  rebound_offensive_total integer [note: 'only live']
+  turnoverTotal integer [note: 'only live']
+  foul_personal_total integer [note: 'only live']
+  foul_technical_total integer [note: 'only live']
+  foul_drawn_player_id integer [ref: > game_player.id, note: 'only live']
+
+  Note: 'There is not block total, steal total. About substitution, there is both of In and Out and also between quarters in live, but there is not In player Id (only name in description) and between quorters in stats'
+}
