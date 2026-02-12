@@ -19,6 +19,7 @@ services:
       - PYTHONDONTWRITEBYTECODE=1
       - PYTHONUNBUFFERED=1
       - PYTHONPATH=/app
+      - APP_SERVER_MODE=dev
       - DB_HOST=postgres
       - DB_PORT=5432
       - DB_NAME=nba_analyzer
@@ -44,6 +45,7 @@ services:
       - PYTHONDONTWRITEBYTECODE=1
       - PYTHONUNBUFFERED=1
       - PYTHONPATH=/app/server
+      - APP_SERVER_MODE=prod
       - DB_HOST=postgres
       - DB_PORT=5432
       - DB_NAME=nba_analyzer
