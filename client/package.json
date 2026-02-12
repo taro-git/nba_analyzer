@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "npx react-router typegen && react-router build",
-    "dev": "npx react-router typegen && react-router dev",
+    "dev": "react-router dev",
     "lint": "eslint . --fix",
     "start": "react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc",

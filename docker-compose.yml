@@ -2,21 +2,6 @@ version: '3.8'
 
 services:
 
-  client-dev:
-    profiles: ["dev"]
-    build:
-      context: .
-      dockerfile: client/Dockerfile
-      target: dev
-    ports:
-      - "5173:5173"
-    volumes:
-      - ./client:/app
-      - /app/node_modules
-    restart: "always"
-    environment:
-      - TZ=Asia/Tokyo
-
   app-dev:
     profiles: ["dev"]
     build:
