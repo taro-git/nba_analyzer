@@ -1,7 +1,11 @@
+import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
 
 import type { Route } from "./+types/root";
 import "./app.css";
+
+// Register all Community features
+ModuleRegistry.registerModules([AllCommunityModule]);
 
 export const links: Route.LinksFunction = () => [
   {
