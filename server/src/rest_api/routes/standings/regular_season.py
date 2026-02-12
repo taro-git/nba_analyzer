@@ -1,16 +1,51 @@
+import re
 from enum import Enum
-from typing import List, Self
+from typing import List, Self, Type
 
 from fastapi import APIRouter, Depends
-from pydantic import field_validator, model_validator
-from sqlmodel import Field, Session, SQLModel
+from pydantic import BaseModel, ConfigDict, GetCoreSchemaHandler, model_validator
+from pydantic.alias_generators import to_camel
+from pydantic_core import core_schema
+from sqlmodel import Field, Session
 
 from common.db import get_session
-
 
 # ======================================================================================================================
 # Schemas
 # ======================================================================================================================
+
+
+class Season(str):
+    """
+    パラメータや戻り値に使用するシーズンの型を示します.
+    """
+
+    @classmethod
+    def __get_pydantic_core_schema__(
+        cls,
+        _source: Type[object],
+        _handler: GetCoreSchemaHandler,
+    ) -> core_schema.AfterValidatorFunctionSchema:
+        return core_schema.no_info_after_validator_function(
+            cls.validate,
+            core_schema.str_schema(),
+        )
+
+    @classmethod
+    def validate(cls, season: str) -> str:
+        match = re.fullmatch(r"(\d{4})-(\d{2})", season)
+        if not match:
+            raise ValueError("season must be YYYY-YY format and >= 1970-71")
+
+        year_str, suffix = match.groups()
+        year = int(year_str)
+        expected_suffix = f"{(year + 1) % 100:02d}"
+
+        if year < 1970 or suffix != expected_suffix:
+            raise ValueError("season must be YYYY-YY format and >= 1970-71")
+        return season
+
+
 class Conference(Enum):
     """
     NBA チームが所属するカンファレンスを示します.
@@ -33,7 +68,7 @@ class Division(Enum):
     southwest = "SouthWest"
 
 
-class TeamStanding(SQLModel):
+class TeamStanding(BaseModel):
     """
     1チームのレギュラーシーズンの成績を示します.
     """
@@ -78,23 +113,26 @@ class TeamStanding(SQLModel):
             raise ValueError(f"division: {self.division} is not in conference: {self.conference}")
         return self
 
+    model_config = ConfigDict(
+        alias_generator=to_camel,
+        populate_by_name=True,
+    )
 
-class RegularSeasonStandingsSchema(SQLModel):
+
+class RegularSeasonStandingsSchema(BaseModel):
     """
     全チームのレギュラーシーズンの成績を示します.
     """
 
-    season: int
+    season: Season
     """シーズン開始年"""
     teams: List[TeamStanding]
     """チーム成績一覧"""
 
-    @field_validator("season")
-    @classmethod
-    def validate_season(cls, season: int) -> int:
-        if season < 1946:
-            raise ValueError("season must be >= 1946")
-        return season
+    model_config = ConfigDict(
+        alias_generator=to_camel,
+        populate_by_name=True,
+    )
 
 
 # ======================================================================================================================
@@ -105,7 +143,7 @@ regular_season_standings_router = APIRouter()
 
 @regular_season_standings_router.get("/standings/regular-seasons/{season}")
 async def list_regular_season_standings_by_season(
-    season: int, session: Session = Depends(get_session)
+    season: Season, session: Session = Depends(get_session)
 ) -> RegularSeasonStandingsSchema:
     """
     シーズンを指定してレギュラーシーズンのチーム成績一覧を返します.
@@ -114,12 +152,45 @@ async def list_regular_season_standings_by_season(
     dummy_team = TeamStanding(
         team_id=0,
         team_name="dummy_team_name",
-        team_tricode="DTN",
+        team_tricode="CRE",
+        team_logo="https://cdn.nba.com/logos/nba/1610612739/global/L/logo.svg",
+        conference=Conference.east,
+        division=Division.southeast,
+        rank=1,
+        win=1,
+        lose=1,
+    )
+    dummy_team_2 = TeamStanding(
+        team_id=0,
+        team_name="dummy_team_name",
+        team_tricode="IND",
+        team_logo="https://cdn.nba.com/logos/nba/1610612739/global/L/logo.svg",
+        conference=Conference.east,
+        division=Division.southeast,
+        rank=2,
+        win=0,
+        lose=1,
+    )
+    dummy_team_3 = TeamStanding(
+        team_id=0,
+        team_name="dummy_team_name",
+        team_tricode="GSW",
+        team_logo="https://cdn.nba.com/logos/nba/1610612739/global/L/logo.svg",
+        conference=Conference.west,
+        division=Division.southwest,
+        rank=2,
+        win=1,
+        lose=1,
+    )
+    dummy_team_4 = TeamStanding(
+        team_id=0,
+        team_name="dummy_team_name",
+        team_tricode="LAC",
         team_logo="https://cdn.nba.com/logos/nba/1610612739/global/L/logo.svg",
         conference=Conference.west,
         division=Division.southwest,
         rank=1,
         win=1,
-        lose=1,
+        lose=0,
     )
-    return RegularSeasonStandingsSchema(season=season, teams=[dummy_team])
+    return RegularSeasonStandingsSchema(season=season, teams=[dummy_team, dummy_team_2, dummy_team_3, dummy_team_4])
