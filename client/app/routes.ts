@@ -1,10 +1,17 @@
-import { index, prefix, route, type RouteConfig } from "@react-router/dev/routes";
+import { index, route, type RouteConfig } from "@react-router/dev/routes";
 
+export const BASE_URL = "view";
+
+/*
+ * ルート定義
+ */
 export default [
-  ...prefix("view", [
+  route(BASE_URL, "routes/layout.tsx", [
     index("routes/home.tsx"),
-    route("seasons", "routes/seasons.tsx"),
+    route("teams", "routes/teams.tsx"),
+    route("players", "routes/players.tsx"),
     route("games", "routes/games.tsx"),
     route("analysis", "routes/analysis.tsx"),
+    route("settings", "routes/settings.tsx"),
   ]),
 ] satisfies RouteConfig;
