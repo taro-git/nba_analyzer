@@ -117,6 +117,7 @@ Table game_player {
   id integer [pk]
   game_id integer [not null, ref: > game.id]
   player_id integer [not null, ref: > player.id]
+  jearsy_num integer [not null]
   position integer
   is_home bool [not null]
   is_starter bool [not null]
