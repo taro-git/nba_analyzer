@@ -2,12 +2,7 @@ import { RegularSeasonTeams } from "../types/teams";
 import { BaseApi } from "./base.api";
 import { type IRegularSeasonTeams } from "./schemas/teams";
 
-class RegularSeasonTeamsApi extends BaseApi<
-  undefined,
-  undefined,
-  IRegularSeasonTeams,
-  RegularSeasonTeams
-> {
+class RegularSeasonTeamsApi extends BaseApi<undefined, undefined, IRegularSeasonTeams, RegularSeasonTeams> {
   protected Response = RegularSeasonTeams;
 
   protected resIsIRes(data: unknown): data is IRegularSeasonTeams {
