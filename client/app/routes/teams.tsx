@@ -15,12 +15,12 @@ import { type ColDef, type ColGroupDef, type ValueGetterParams } from "ag-grid-c
 import { type ReactNode, useState } from "react";
 import { useSearchParams } from "react-router";
 
-import { regularSeasonTeamStandingsApi } from "../api/teams.api";
+import { regularSeasonTeamsApi } from "../api/teams.api";
 import CustomTable from "../components/CustomTable";
 import FullWidthTab, { type TabItem } from "../components/FullWidthTab";
 import { Conferences, Divisions, SeasonTypes, TeamCategories } from "../types/leagueStructure";
 import { type Season } from "../types/season";
-import { type RegularSeasonTeamStandings } from "../types/teams";
+import { type RegularSeasonTeams } from "../types/teams";
 import { generateSeasons, toSeason } from "../util/season";
 import { type Route } from "./+types/teams";
 
@@ -38,12 +38,12 @@ interface TabItemWithQuery extends TabItem {
 /**
  * Teams 画面のクライアントローダーを定義します.
  */
-export async function clientLoader({ request }: Route.ClientLoaderArgs): Promise<RegularSeasonTeamStandings> {
+export async function clientLoader({ request }: Route.ClientLoaderArgs): Promise<RegularSeasonTeams> {
   const url = new URL(request.url);
   const season = url.searchParams.get(QueryParameterKeys.Season) ?? generateSeasons()[0];
   const seasonType = url.searchParams.get(QueryParameterKeys.SeasonType) ?? SeasonTypes.Regular;
-  regularSeasonTeamStandingsApi.path = `/teams/${seasonType}/${season}`;
-  return await regularSeasonTeamStandingsApi.getOne();
+  regularSeasonTeamsApi.path = `/teams/${seasonType}/${season}`;
+  return await regularSeasonTeamsApi.getOne();
 }
 
 /**
@@ -53,18 +53,16 @@ export default function Teams({ loaderData }: Route.ComponentProps) {
   // ----------------------------------------------------------------------
   // Loadings
   // ----------------------------------------------------------------------
-  const regularSeasonTeamStandings: RegularSeasonTeamStandings = loaderData;
-  const teamsGroupedByConference = regularSeasonTeamStandings.teamStandingsByConference;
-  const teamsGroupedByDivision = regularSeasonTeamStandings.teamStandingsByDivision;
+  const regularSeasonTeams = loaderData;
+  const teamsGroupedByConference = regularSeasonTeams.teamsByConference;
+  const teamsGroupedByDivision = regularSeasonTeams.teamsByDivision;
 
   // ----------------------------------------------------------------------
   // States
   // ----------------------------------------------------------------------
   const [searchParams, setSearchParams] = useSearchParams();
-
   const seasons: Season[] = generateSeasons();
   const [season, setSeason] = useState<Season>(toSeason(searchParams.get(QueryParameterKeys.Season) ?? seasons[0]));
-
   const [groupBy, setGroupBy] = useState<TeamCategories>(TeamCategories.Conference);
 
   // ----------------------------------------------------------------------
@@ -149,7 +147,7 @@ export default function Teams({ loaderData }: Route.ComponentProps) {
   const regularSeasonTeamsView: (groupBy: TeamCategories) => ReactNode = (groupBy) => {
     switch (groupBy) {
       case TeamCategories.All:
-        return <CustomTable columnDefs={columnDefs} data={regularSeasonTeamStandings.teamStandings} />;
+        return <CustomTable columnDefs={columnDefs} data={regularSeasonTeams.teams} />;
       case TeamCategories.Conference:
         return (
           <>

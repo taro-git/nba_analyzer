@@ -1,16 +1,16 @@
-import { RegularSeasonTeamStandings } from "../types/teams";
+import { RegularSeasonTeams } from "../types/teams";
 import { BaseApi } from "./base.api";
-import { type IRegularSeasonTeamStandings } from "./schemas/teams";
+import { type IRegularSeasonTeams } from "./schemas/teams";
 
-class RegularSeasonTeamStandingsApi extends BaseApi<
+class RegularSeasonTeamsApi extends BaseApi<
   undefined,
   undefined,
-  IRegularSeasonTeamStandings,
-  RegularSeasonTeamStandings
+  IRegularSeasonTeams,
+  RegularSeasonTeams
 > {
-  protected Response = RegularSeasonTeamStandings;
+  protected Response = RegularSeasonTeams;
 
-  protected resIsIRes(data: unknown): data is IRegularSeasonTeamStandings {
+  protected resIsIRes(data: unknown): data is IRegularSeasonTeams {
     return typeof data === "object" && data !== null && "season" in data && "teams" in data;
   }
 }
@@ -18,4 +18,4 @@ class RegularSeasonTeamStandingsApi extends BaseApi<
 /**
  * レギュラーシーズンのチーム成績一覧を操作する API クラス.
  */
-export const regularSeasonTeamStandingsApi = new RegularSeasonTeamStandingsApi();
+export const regularSeasonTeamsApi = new RegularSeasonTeamsApi();

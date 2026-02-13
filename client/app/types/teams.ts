@@ -1,9 +1,9 @@
-import { type IRegularSeasonTeamStandings } from "../api/schemas/teams";
+import { type IRegularSeasonTeams } from "../api/schemas/teams";
 import { toSeason } from "../util/season";
 import { Conferences, type Divisions } from "./leagueStructure";
 import { type Season } from "./season";
 
-interface TeamStanding {
+interface RegularSeasonTeam {
   teamId: number;
   teamName: string;
   teamTricode: string;
@@ -21,11 +21,11 @@ interface TeamStanding {
 /**
  * レギュラーシーズンのチーム成績一覧を表すクラスです.
  */
-export class RegularSeasonTeamStandings {
+export class RegularSeasonTeams {
   season: Season;
-  teamStandings: TeamStanding[];
+  teams: RegularSeasonTeam[];
 
-  constructor(data?: IRegularSeasonTeamStandings) {
+  constructor(data?: IRegularSeasonTeams) {
     this.season = toSeason(data?.season ?? "1970-71");
     const eastBestDiffWinLose =
       data?.teams
@@ -37,7 +37,7 @@ export class RegularSeasonTeamStandings {
         .filter((team) => team.conference === Conferences.West)
         .map((team) => team.win - team.lose)
         .sort((a, b) => b - a)[0] ?? 0;
-    this.teamStandings =
+    this.teams =
       data?.teams
         .map((team) => {
           const bestDiffWinLose = team.conference === Conferences.East ? eastBestDiffWinLose : westBestDiffWinLose;
@@ -59,13 +59,13 @@ export class RegularSeasonTeamStandings {
         .sort((a, b) => (a.rank != b.rank ? a.rank - b.rank : b.win / b.gp - a.win / a.gp)) ?? [];
   }
 
-  get teamStandingsByConference(): Record<Conferences, TeamStanding[]> {
-    const grouped = this.teamStandings.reduce(
+  get teamsByConference(): Record<Conferences, RegularSeasonTeam[]> {
+    const grouped = this.teams.reduce(
       (acc, team) => {
         (acc[team.conference] ??= []).push(team);
         return acc;
       },
-      {} as Record<Conferences, TeamStanding[]>,
+      {} as Record<Conferences, RegularSeasonTeam[]>,
     );
 
     for (const conference of Object.keys(grouped) as Conferences[]) {
@@ -75,13 +75,13 @@ export class RegularSeasonTeamStandings {
     return grouped;
   }
 
-  get teamStandingsByDivision(): Record<Divisions, TeamStanding[]> {
-    const grouped = this.teamStandings.reduce(
+  get teamsByDivision(): Record<Divisions, RegularSeasonTeam[]> {
+    const grouped = this.teams.reduce(
       (acc, team) => {
         (acc[team.division] ??= []).push(team);
         return acc;
       },
-      {} as Record<Divisions, TeamStanding[]>,
+      {} as Record<Divisions, RegularSeasonTeam[]>,
     );
 
     for (const division of Object.keys(grouped) as Divisions[]) {

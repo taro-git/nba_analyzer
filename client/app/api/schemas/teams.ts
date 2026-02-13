@@ -4,7 +4,7 @@ import { type Season } from "../../types/season";
 /**
  * API から受け取るチームの成績を表す schema です.
  */
-interface ITeamStanding {
+interface IRegularSeasonTeam {
   teamId: number;
   teamName: string;
   teamTricode: string;
@@ -19,7 +19,7 @@ interface ITeamStanding {
 /**
  * API から受け取るレギュラーシーズンのチーム成績一覧を表す schema です.
  */
-export interface IRegularSeasonTeamStandings {
+export interface IRegularSeasonTeams {
   season: Season;
-  teams: ITeamStanding[];
+  teams: IRegularSeasonTeam[];
 }
