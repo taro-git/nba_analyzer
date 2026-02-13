@@ -19,7 +19,7 @@ class RegularSeasonTeam(BaseModel):
     """チーム名"""
     team_tricode: str = Field(min_length=3, max_length=3)
     """3桁のチーム略称"""
-    team_logo: str  # f"https://cdn.nba.com/logos/nba/{team_id}/global/L/logo.svg"
+    team_logo: str
     """チームロゴ取得先 URL"""
     conference: Conference
     """カンファレンス"""
