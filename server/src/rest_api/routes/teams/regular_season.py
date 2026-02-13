@@ -3,7 +3,7 @@ from sqlmodel import Session
 
 from common.db import get_session
 from common.types import Conference, Division
-from rest_api.schemas.common import Season
+from rest_api.schemas.commons import Season
 from rest_api.schemas.teams.regular_season import RegularSeasonTeam, RegularSeasonTeamsSchema
 
 regular_season_teams_router = APIRouter()

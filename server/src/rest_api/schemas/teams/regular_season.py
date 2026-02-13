@@ -5,7 +5,7 @@ from pydantic.alias_generators import to_camel
 from sqlmodel import Field
 
 from common.types import Conference, Division
-from rest_api.schemas.common import Season
+from rest_api.schemas.commons import Season
 
 
 class RegularSeasonTeam(BaseModel):
