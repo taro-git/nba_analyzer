@@ -94,7 +94,6 @@ export default function Teams({ loaderData }: Route.ComponentProps) {
   const onChangeGroupBy = (event: React.ChangeEvent<HTMLInputElement, Element>) => {
     const groupBy = event.target.value as TeamCategories;
     setGroupBy(groupBy);
-    setRegularSeasonContents(regularSeasonTeamStandingsView(groupBy));
   };
 
   // ----------------------------------------------------------------------
@@ -147,7 +146,7 @@ export default function Teams({ loaderData }: Route.ComponentProps) {
   ];
 
   const theme = useTheme();
-  const regularSeasonTeamStandingsView: (groupBy: TeamCategories) => ReactNode = (groupBy) => {
+  const regularSeasonTeamsView: (groupBy: TeamCategories) => ReactNode = (groupBy) => {
     switch (groupBy) {
       case TeamCategories.All:
         return <CustomTable columnDefs={columnDefs} data={regularSeasonTeamStandings.teamStandings} />;
@@ -175,9 +174,6 @@ export default function Teams({ loaderData }: Route.ComponentProps) {
         );
     }
   };
-  const [reguularSeasonContents, setRegularSeasonContents] = useState<ReactNode>(
-    regularSeasonTeamStandingsView(groupBy),
-  );
 
   const tabItems: TabItemWithQuery[] = [
     {
@@ -190,7 +186,7 @@ export default function Teams({ loaderData }: Route.ComponentProps) {
             <FormControlLabel value={TeamCategories.Conference} control={<Radio />} label="Conference" />
             <FormControlLabel value={TeamCategories.Division} control={<Radio />} label="Division" />
           </RadioGroup>
-          {reguularSeasonContents}
+          {regularSeasonTeamsView(groupBy)}
         </>
       ),
     },
