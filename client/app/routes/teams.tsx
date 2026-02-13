@@ -42,7 +42,7 @@ export async function clientLoader({ request }: Route.ClientLoaderArgs): Promise
   const url = new URL(request.url);
   const season = url.searchParams.get(QueryParameterKeys.Season) ?? generateSeasons()[0];
   const seasonType = url.searchParams.get(QueryParameterKeys.SeasonType) ?? SeasonTypes.Regular;
-  regularSeasonTeamStandingsApi.path = `/standings/${seasonType}/${season}`;
+  regularSeasonTeamStandingsApi.path = `/teams/${seasonType}/${season}`;
   return await regularSeasonTeamStandingsApi.getOne();
 }
 
