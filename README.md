@@ -38,6 +38,10 @@ This application analyzes NBA players and teams based on box scores and play-by-
     # apply db
     docker compose exec app-dev poetry run alembic -c src/common/alembic.ini upgrade head
     ```
+    * for downgrade
+      ```ps
+      docker compose exec app-dev poetry run alembic -c src/common/alembic.ini downgrade base
+      ```
 ### for prod
 1. Build prod
 1. Run following commands
