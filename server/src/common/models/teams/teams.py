@@ -36,9 +36,9 @@ class Team(SQLModel, table=True):
 
     __table_args__ = (
         CheckConstraint(
-            "(conference = East AND division IN (Atlantic,Central,SouthEast)) "
+            "(conference = 'East' AND division IN ('Atlantic','Central','SouthEast')) "
             "OR "
-            "(conference = West AND division IN (NorthWest,Pacific,SouthWest))",
+            "(conference = 'West' AND division IN ('NorthWest','Pacific','SouthWest'))",
             name="check_conference_division_match",
         ),
     )

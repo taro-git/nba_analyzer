@@ -22,7 +22,7 @@ RUN apt update && \
     echo "Asia/Tokyo" > /etc/timezone && \
     apt clean && \
     pip install poetry && \
-    poetry install
+    poetry install --without test,lint
 
 # --------------------------------------------------
 # for development

@@ -15,9 +15,6 @@ def get_regular_season_teams_by_season(session: Session, season: Season) -> list
     team_ids = [standing.team_id for standing in team_standings]
     team_infos = get_teams_by_ids(session, team_ids)
     team_infos_by_id = {team.id: team for team in team_infos}
-    print(team_standings)
-    print(team_infos)
-    print(team_infos_by_id)
 
     result: list[RegularSeasonTeam] = []
 
