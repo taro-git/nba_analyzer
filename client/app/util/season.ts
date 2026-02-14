@@ -21,6 +21,11 @@ export function toSeason(value: string): Season {
   return value as Season;
 }
 
+/**
+ * シーズン一覧を生成します.
+ * デフォルトでは 1970-71 を最古のシーズンとします.
+ * シーズンは 10 月始まりとします.
+ */
 export function generateSeasons(startYear = 1970, date = new Date()): Season[] {
   const currentStartYear = date.getMonth() + 1 >= 9 ? date.getFullYear() : date.getFullYear() - 1;
   return Array.from({ length: currentStartYear - startYear + 1 }, (_, i) => {
