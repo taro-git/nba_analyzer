@@ -72,7 +72,7 @@ export default function FullWidthTab({
   };
 
   return (
-    <Box sx={{ bgcolor: "background.paper", width: "100%", height: "100%" }}>
+    <Box sx={{ width: "100%", height: "100%" }}>
       <Tabs value={selectedItemIndex} onChange={handleChange} variant="fullWidth" aria-label="full width tabs example">
         {tabItems.map((tab, index) => (
           <Tab key={index} label={tab.label} {...a11yProps(index)} disabled={tab.disabled ?? false} />

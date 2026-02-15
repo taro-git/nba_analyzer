@@ -54,3 +54,19 @@ export const Divisions = {
  * リーグのディビジョンを定義します.
  */
 export type Divisions = (typeof Divisions)[keyof typeof Divisions];
+
+/**
+ * ディビジョンに対応したカンファレンスを返します.
+ */
+export const ConferenceFromDivisions: (division: Divisions) => Conferences = (division: Divisions) => {
+  switch (division) {
+    case Divisions.Atlantic:
+    case Divisions.Central:
+    case Divisions.SouthEast:
+      return Conferences.East;
+    case Divisions.NorthWest:
+    case Divisions.Pacific:
+    case Divisions.SouthWest:
+      return Conferences.West;
+  }
+};

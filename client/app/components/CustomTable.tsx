@@ -1,15 +1,25 @@
 import Box from "@mui/material/Box";
+import { useColorScheme } from "@mui/material/styles";
 
-import { type ColDef } from "ag-grid-community";
+import { type ColDef, themeQuartz } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 
+import { theme } from "../routes/layout";
 import "./styles.css";
 
 /**
  * nba_analyzer 向けのテーブルコンポーネントです.
  */
-export default function CustomTable<Data>({ columnDefs, data }: { columnDefs: ColDef[]; data: Data[] }) {
+export default function CustomTable<Data>({
+  columnDefs,
+  data,
+  degree,
+}: {
+  columnDefs: ColDef[];
+  data: Data[];
+  degree: "warm" | "cold" | undefined;
+}) {
   const columnTypes = {
     centerAligned: {
       cellStyle: { textAlign: "center" },
@@ -22,9 +32,25 @@ export default function CustomTable<Data>({ columnDefs, data }: { columnDefs: Co
     lockPosition: true,
     lockVisible: true,
   };
+  const systemMode = useColorScheme().systemMode;
+
+  const lightTheme = themeQuartz.withParams({
+    backgroundColor: theme.colorSchemes.light?.palette.getContrastText(degree ?? ""),
+    textColor: theme.colorSchemes.light?.palette.text.primary,
+  });
+  const darkTheme = themeQuartz.withParams({
+    backgroundColor: theme.colorSchemes.dark?.palette.getContrastText(degree ?? ""),
+    textColor: theme.colorSchemes.dark?.palette.text.primary,
+  });
+
+  const gridTheme = useMemo(() => {
+    return systemMode === "light" ? lightTheme : darkTheme;
+  }, [systemMode]);
   return (
     <Box sx={{ height: "100%", width: "100%" }}>
       <AgGridReact<Data>
+        key={`${data}`}
+        theme={gridTheme}
         ref={gridRef}
         rowData={data}
         defaultColDef={defaultColDef}
@@ -37,6 +63,7 @@ export default function CustomTable<Data>({ columnDefs, data }: { columnDefs: Co
         }}
         columnTypes={columnTypes}
         autoSizeStrategy={{ type: "fitCellContents" }}
+        suppressRowHoverHighlight={true}
       />
     </Box>
   );

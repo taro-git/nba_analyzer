@@ -8,17 +8,18 @@ import {
   RadioGroup,
   Select,
   type SelectChangeEvent,
+  useColorScheme,
 } from "@mui/material";
-import { alpha, useTheme } from "@mui/material/styles";
 
 import { type ColDef, type ColGroupDef, type ValueGetterParams } from "ag-grid-community";
-import { type ReactNode, useState } from "react";
+import { type ReactNode, useMemo, useState } from "react";
 import { useSearchParams } from "react-router";
 
 import { regularSeasonTeamsApi } from "../api/teams.api";
 import CustomTable from "../components/CustomTable";
 import FullWidthTab, { type TabItem } from "../components/FullWidthTab";
-import { Conferences, Divisions, SeasonTypes, TeamCategories } from "../types/leagueStructure";
+import { theme } from "../routes/layout";
+import { ConferenceFromDivisions, Conferences, Divisions, SeasonTypes, TeamCategories } from "../types/leagueStructure";
 import { type Season } from "../types/season";
 import { type RegularSeasonTeams } from "../types/teams";
 import { generateSeasons, toSeason } from "../util/season";
@@ -143,18 +144,34 @@ export default function Teams({ loaderData }: Route.ComponentProps) {
     { headerName: "Stats /Game", children: baseStatsColDefs },
   ];
 
-  const theme = useTheme();
+  const systemMode = useColorScheme().systemMode;
+  const palette = useMemo(() => {
+    return systemMode === "light" ? theme.colorSchemes.light?.palette : theme.colorSchemes.dark?.palette;
+  }, [systemMode]);
   const regularSeasonTeamsView: (groupBy: TeamCategories) => ReactNode = (groupBy) => {
     switch (groupBy) {
       case TeamCategories.All:
-        return <CustomTable columnDefs={columnDefs} data={regularSeasonTeams.teams} />;
+        return <CustomTable columnDefs={columnDefs} data={regularSeasonTeams.teams} degree={undefined} />;
       case TeamCategories.Conference:
         return (
           <>
             {Object.values(Conferences).map((conference) => (
               <>
-                <Box sx={{ backgroundColor: alpha(theme.palette.grey[200], 1), paddingLeft: 3 }}>{conference}</Box>
-                <CustomTable columnDefs={columnDefs} data={teamsGroupedByConference[conference] ?? []} />
+                <Box
+                  sx={{
+                    paddingLeft: 3,
+                    marginTop: 1,
+                    bgcolor: palette?.getContrastText(conference === Conferences.East ? "cold" : "warm"),
+                  }}
+                >
+                  {conference}
+                </Box>
+                <CustomTable
+                  key={`${groupBy}-${conference}`}
+                  columnDefs={columnDefs}
+                  data={teamsGroupedByConference[conference] ?? []}
+                  degree={conference === Conferences.East ? "cold" : "warm"}
+                />
               </>
             ))}
           </>
@@ -164,8 +181,23 @@ export default function Teams({ loaderData }: Route.ComponentProps) {
           <>
             {Object.values(Divisions).map((division) => (
               <>
-                <Box sx={{ backgroundColor: alpha(theme.palette.grey[200], 1), paddingLeft: 3 }}>{division}</Box>
-                <CustomTable columnDefs={columnDefs} data={teamsGroupedByDivision[division] ?? []} />
+                <Box
+                  sx={{
+                    paddingLeft: 3,
+                    marginTop: 1,
+                    bgcolor: palette?.getContrastText(
+                      ConferenceFromDivisions(division) === Conferences.East ? "cold" : "warm",
+                    ),
+                  }}
+                >
+                  {division}
+                </Box>
+                <CustomTable
+                  key={`${groupBy}-${division}`}
+                  columnDefs={columnDefs}
+                  data={teamsGroupedByDivision[division] ?? []}
+                  degree={ConferenceFromDivisions(division) === Conferences.East ? "cold" : "warm"}
+                />
               </>
             ))}
           </>
