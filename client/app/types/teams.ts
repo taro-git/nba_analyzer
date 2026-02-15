@@ -3,7 +3,7 @@ import { toSeason } from "../util/season";
 import { Conferences, type Divisions } from "./leagueStructure";
 import { type Season } from "./season";
 
-interface RegularSeasonTeam {
+export interface RegularSeasonTeam {
   teamId: number;
   teamName: string;
   teamTricode: string;
@@ -51,43 +51,11 @@ export class RegularSeasonTeams {
             rank: team.rank,
             win: team.win,
             lose: team.lose,
-            gb: -(team.win - team.lose - bestDiffWinLose) / 2,
+            gb: (bestDiffWinLose + team.lose - team.win) / 2,
             rate: (team.win / (team.win + team.lose)).toFixed(3).slice(1, 5),
             gp: team.win + team.lose,
           };
         })
         .sort((a, b) => (a.rank != b.rank ? a.rank - b.rank : b.win / b.gp - a.win / a.gp)) ?? [];
-  }
-
-  get teamsByConference(): Record<Conferences, RegularSeasonTeam[]> {
-    const grouped = this.teams.reduce(
-      (acc, team) => {
-        (acc[team.conference] ??= []).push(team);
-        return acc;
-      },
-      {} as Record<Conferences, RegularSeasonTeam[]>,
-    );
-
-    for (const conference of Object.keys(grouped) as Conferences[]) {
-      grouped[conference].sort((a, b) => a.rank - b.rank);
-    }
-
-    return grouped;
-  }
-
-  get teamsByDivision(): Record<Divisions, RegularSeasonTeam[]> {
-    const grouped = this.teams.reduce(
-      (acc, team) => {
-        (acc[team.division] ??= []).push(team);
-        return acc;
-      },
-      {} as Record<Divisions, RegularSeasonTeam[]>,
-    );
-
-    for (const division of Object.keys(grouped) as Divisions[]) {
-      grouped[division].sort((a, b) => a.rank - b.rank);
-    }
-
-    return grouped;
   }
 }

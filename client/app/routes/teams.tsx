@@ -19,10 +19,12 @@ import { regularSeasonTeamsApi } from "../api/teams.api";
 import CustomTable from "../components/CustomTable";
 import FullWidthTab, { type TabItem } from "../components/FullWidthTab";
 import { theme } from "../routes/layout";
-import { ConferenceFromDivisions, Conferences, Divisions, SeasonTypes, TeamCategories } from "../types/leagueStructure";
+import { Conferences, Divisions, SeasonTypes, TeamCategories } from "../types/leagueStructure";
 import { type Season } from "../types/season";
 import { type RegularSeasonTeams } from "../types/teams";
+import { ConferenceFromDivisions } from "../util/leagueStructure";
 import { generateSeasons, toSeason } from "../util/season";
+import { teamsByConference, teamsByDivision } from "../util/teams";
 import { type Route } from "./+types/teams";
 
 const QueryParameterKeys = {
@@ -55,8 +57,8 @@ export default function Teams({ loaderData }: Route.ComponentProps) {
   // Loadings
   // ----------------------------------------------------------------------
   const regularSeasonTeams = loaderData;
-  const teamsGroupedByConference = regularSeasonTeams.teamsByConference;
-  const teamsGroupedByDivision = regularSeasonTeams.teamsByDivision;
+  const teamsGroupedByConference = teamsByConference(regularSeasonTeams.teams);
+  const teamsGroupedByDivision = teamsByDivision(regularSeasonTeams.teams);
 
   // ----------------------------------------------------------------------
   // States

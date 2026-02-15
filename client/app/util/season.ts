@@ -1,6 +1,6 @@
 import { type Season } from "../types/season";
 
-function isSeason(value: string): value is Season {
+export function isSeason(value: string): value is Season {
   const match = /^(\d{4})-(\d{2})$/.exec(value);
   if (!match) return false;
 
