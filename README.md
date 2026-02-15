@@ -13,28 +13,19 @@ This application analyzes NBA players and teams based on box scores and play-by-
     docker compose --profile prod up --build -d
     ```
 ### for dev
-* docker
+* server and db
   1. Run following commands (Run same commands to rebuild client)
       ```ps
       docker compose --profile dev up --build -d
       ```
-* local
+* client
   1. Run following commands for client  
       ```ps
       cd client
       npm run install
       npm run dev
       ```
-  1. Run following commands for rest api server  
-      ```ps
-      cd server
-      poetry install
-      poetry run uvicorn rest_api.main:app --reload
-      ```
-  1. Run following commands for batch server  
-      ```ps
-      poetry run uvicorn batch.main:app --reload
-      ```
+  1. Access http://localhost:5173/view/ in web browser  
 # DB Migration
 ### for dev
 1. Build dev(docker)
@@ -47,6 +38,10 @@ This application analyzes NBA players and teams based on box scores and play-by-
     # apply db
     docker compose exec app-dev poetry run alembic -c src/common/alembic.ini upgrade head
     ```
+    * for downgrade
+      ```ps
+      docker compose exec app-dev poetry run alembic -c src/common/alembic.ini downgrade base
+      ```
 ### for prod
 1. Build prod
 1. Run following commands

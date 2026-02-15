@@ -2,21 +2,6 @@ version: '3.8'
 
 services:
 
-  client-dev:
-    profiles: ["dev"]
-    build:
-      context: .
-      dockerfile: client/Dockerfile
-      target: dev
-    ports:
-      - "5173:5173"
-    volumes:
-      - ./client:/app
-      - /app/node_modules
-    restart: "always"
-    environment:
-      - TZ=Asia/Tokyo
-
   app-dev:
     profiles: ["dev"]
     build:
@@ -34,6 +19,7 @@ services:
       - PYTHONDONTWRITEBYTECODE=1
       - PYTHONUNBUFFERED=1
       - PYTHONPATH=/app
+      - APP_SERVER_MODE=dev
       - DB_HOST=postgres
       - DB_PORT=5432
       - DB_NAME=nba_analyzer
@@ -59,6 +45,7 @@ services:
       - PYTHONDONTWRITEBYTECODE=1
       - PYTHONUNBUFFERED=1
       - PYTHONPATH=/app/server
+      - APP_SERVER_MODE=prod
       - DB_HOST=postgres
       - DB_PORT=5432
       - DB_NAME=nba_analyzer
