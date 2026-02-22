@@ -8,7 +8,7 @@ export abstract class BaseApi<
   Res = unknown,
 > {
   static readonly BASE_URL: URL = import.meta.env.DEV
-    ? new URL("http://localhost:8000/api/")
+    ? new URL("http://127.0.0.1:8000/api/")
     : new URL("/api/", window.location.origin);
 
   private _path: string;

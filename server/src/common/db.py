@@ -11,7 +11,7 @@ PASSWORD = os.environ.get("DB_PASSWORD", "nba_analyzer_password")
 
 engine = create_engine(
     f"postgresql+psycopg://{USER}:{PASSWORD}@{HOST}:{PORT}/{NAME}",
-    echo=True,
+    echo=False,
     pool_pre_ping=True,
 )
 

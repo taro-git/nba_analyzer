@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 
 from fastapi import FastAPI
@@ -5,8 +6,18 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
+from common.logging import setup_logging
 from rest_api.routes.base_route import api_router
 from rest_api.settings import settings
+
+setup_logging(
+    {
+        "uvicorn": logging.INFO,
+        "uvicorn.error": logging.INFO,
+        "uvicorn.access": logging.INFO,
+        "sqlalchemy.engine": logging.ERROR,
+    }
+)
 
 BASE_DIR = Path(__file__).resolve().parents[3]
 CLIENT_DIR = BASE_DIR / "client" / "build" / "client"

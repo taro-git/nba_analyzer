@@ -11,14 +11,13 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./server:/app/server
-      - /app/server/.venv
+      - ./server/src/rest_api:/app/server/src/rest_api
     restart: "always"
     environment:
       - TZ=Asia/Tokyo
       - PYTHONDONTWRITEBYTECODE=1
       - PYTHONUNBUFFERED=1
-      - PYTHONPATH=/app
+      - PYTHONPATH=/app/server/src
       - APP_SERVER_MODE=dev
       - DB_HOST=postgres
       - DB_PORT=5432
@@ -44,7 +43,7 @@ services:
       - TZ=Asia/Tokyo
       - PYTHONDONTWRITEBYTECODE=1
       - PYTHONUNBUFFERED=1
-      - PYTHONPATH=/app/server
+      - PYTHONPATH=/app/server/src
       - APP_SERVER_MODE=prod
       - DB_HOST=postgres
       - DB_PORT=5432
