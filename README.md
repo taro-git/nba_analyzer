@@ -9,15 +9,37 @@ This application analyzes NBA players and teams based on box scores and play-by-
 # Build
 ### for prod
 1. Run following commands
-    ```ps
-    docker compose --profile prod up --build -d
-    ```
+    * without init job in batch server
+      ```sh
+      NBA_ANALYZER_BATCH_WITH_INIT=false docker compose --profile prod up --build -d
+      ```
+      ```ps
+      $env:NBA_ANALYZER_BATCH_WITH_INIT="false"; docker compose --profile prod up --build -d
+      ```
+    * with init job in batch server
+      ```sh
+      NBA_ANALYZER_BATCH_WITH_INIT=true docker compose --profile prod up --build -d
+      ```
+      ```ps
+      $env:NBA_ANALYZER_BATCH_WITH_INIT="true"; docker compose --profile prod up --build -d
+      ```
 ### for dev
 * server and db
-  1. Run following commands (Run same commands to rebuild client)
-      ```ps
-      docker compose --profile dev up --build -d
-      ```
+  1. Run following commands (Run same commands to rebuild client)  
+      * without init job in batch server
+        ```sh
+        NBA_ANALYZER_BATCH_WITH_INIT=false docker compose --profile dev up --build -d
+        ```
+        ```ps
+        $env:NBA_ANALYZER_BATCH_WITH_INIT="false"; docker compose --profile dev up --build -d
+        ```
+      * with init job in batch server
+        ```sh
+        NBA_ANALYZER_BATCH_WITH_INIT=true docker compose --profile dev up --build -d
+        ```
+        ```ps
+        $env:NBA_ANALYZER_BATCH_WITH_INIT="true"; docker compose --profile dev up --build -d
+        ```
 * client
   1. Run following commands for client  
       ```ps

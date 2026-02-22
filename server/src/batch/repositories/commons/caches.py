@@ -13,7 +13,7 @@ def get_cache_by_hash(hash: int) -> Cache | None:
         return session.exec(statement).first()
 
 
-def create_cache(cache: Cache) -> None:
+def add_cache(cache: Cache) -> None:
     """
     Cache を DB に登録します.
     """

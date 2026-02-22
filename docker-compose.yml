@@ -53,52 +53,51 @@ services:
     depends_on:
       - postgres
 
-#   batch-dev:
-#     profiles: ["dev"]
-#     build:
-#       context: .
-#       dockerfile: server/Dockerfile
-#       target: batch-dev
-#     volumes:
-#       - batch-temp:/tmp
-#       - ./batch:/app
-#     restart: "always"
-#     environment:
-#       - TZ=Asia/Tokyo
-#       - PYTHONDONTWRITEBYTECODE=1
-#       - PYTHONUNBUFFERED=1
-#       - DB_MANAGE=True
-#       - PYTHONPATH=/app
-#       - DB_HOST=postgres
-#       - DB_PORT=5432
-#       - DB_NAME=nba_analyzer
-#       - DB_USER=nba_analyzer_user
-#       - DB_PASSWORD=nba_analyzer_password
-#     depends_on:
-#       - postgres
+  batch-dev:
+    profiles: ["dev"]
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+      target: batch
+    volumes:
+      - ./server/src/batch:/app/server/src/batch
+    restart: "always"
+    environment:
+      - TZ=Asia/Tokyo
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+      - PYTHONPATH=/app/server/src
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=nba_analyzer
+      - DB_USER=nba_analyzer_user
+      - DB_PASSWORD=nba_analyzer_password
+      - NBA_ANALYZER_BATCH_WITH_INIT=${NBA_ANALYZER_BATCH_WITH_INIT:-false}
+    depends_on:
+      - postgres
 
-#   batch-prod:
-#     profiles: ["prod"]
-#     build:
-#       context: .
-#       dockerfile: server/Dockerfile
-#       target: batch-prod
-#     volumes:
-#       - batch-temp:/tmp
-#     restart: "always"
-#     environment:
-#       - TZ=Asia/Tokyo
-#       - PYTHONDONTWRITEBYTECODE=1
-#       - PYTHONUNBUFFERED=1
-#       - DB_MANAGE=True
-#       - PYTHONPATH=/app
-#       - DB_HOST=postgres
-#       - DB_PORT=5432
-#       - DB_NAME=nba_analyzer
-#       - DB_USER=nba_analyzer_user
-#       - DB_PASSWORD=nba_analyzer_password
-#     depends_on:
-#       - postgres
+  batch-prod:
+    profiles: ["prod"]
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+      target: batch
+    volumes:
+      - batch-temp:/tmp
+    restart: "always"
+    environment:
+      - TZ=Asia/Tokyo
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+      - PYTHONPATH=/app/server/src
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=nba_analyzer
+      - DB_USER=nba_analyzer_user
+      - DB_PASSWORD=nba_analyzer_password
+      - NBA_ANALYZER_BATCH_WITH_INIT=${NBA_ANALYZER_BATCH_WITH_INIT:-false}
+    depends_on:
+      - postgres
 
   postgres:
     image: postgres:18
@@ -114,5 +113,5 @@ services:
 
 volumes: # /var/lib/docker/volumes/
   app-temp:
-#   batch-temp:
+  batch-temp:
   postgresql-data:

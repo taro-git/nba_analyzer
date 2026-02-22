@@ -6,7 +6,7 @@ authors = [
     {name = "taro-git",email = "t.taro30954694@gmail.com"}
 ]
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.12"
 dependencies = [
     "fastapi (>=0.128.0,<0.129.0)",
     "nba-api (>=1.11.4,<2.0.0)",

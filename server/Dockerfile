@@ -41,3 +41,10 @@ COPY server/src/rest_api /app/server/src/rest_api
 COPY --from=client-build /app/build /app/client/build
 CMD ["poetry", "run", "uvicorn", "rest_api.main:app", "--host", "0.0.0.0", "--port", "80"]
 
+# --------------------------------------------------
+# for batch server
+# --------------------------------------------------
+FROM app-base AS batch
+COPY server/src/batch /app/server/src/batch
+CMD ["poetry", "run", "python", "src/batch/main.py"]
+
