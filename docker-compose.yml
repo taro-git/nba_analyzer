@@ -12,6 +12,7 @@ services:
       - "8000:8000"
     volumes:
       - ./server/src/rest_api:/app/server/src/rest_api
+      - ./server/src/common:/app/server/src/common
     restart: "always"
     environment:
       - TZ=Asia/Tokyo
@@ -61,6 +62,7 @@ services:
       target: batch
     volumes:
       - ./server/src/batch:/app/server/src/batch
+      - ./server/src/common:/app/server/src/common
     restart: "always"
     environment:
       - TZ=Asia/Tokyo
