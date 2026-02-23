@@ -25,7 +25,7 @@ def upgrade() -> None:
     op.create_table(
         "seasons",
         sa.Column("start_year", sa.Integer(), nullable=False),
-        sa.CheckConstraint("start_year > 1970", name="check_start_year_gt_1970"),
+        sa.CheckConstraint("start_year >= 1970", name="check_start_year_gt_1970"),
         sa.PrimaryKeyConstraint("start_year"),
     )
     op.create_table(
