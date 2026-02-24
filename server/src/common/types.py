@@ -20,7 +20,9 @@ class Conference(Enum):
         """
         if conference_str.lower().startswith("e"):
             return cls.east
-        return cls.west
+        if conference_str.lower().startswith("w"):
+            return cls.west
+        raise ValueError(f"Invalid conference_str: {conference_str}")
 
 
 class Division(Enum):
@@ -48,6 +50,9 @@ class Division(Enum):
             return cls.northwest
         if division_str.lower().startswith("p"):
             return cls.pacific
-        if "east" in division_str.lower() or "se" in division_str.lower():
-            return cls.southeast
-        return cls.southwest
+        if division_str.lower().startswith("s"):
+            if "east" in division_str.lower() or "se" in division_str.lower():
+                return cls.southeast
+            if "west" in division_str.lower() or "sw" in division_str.lower():
+                return cls.southwest
+        raise ValueError(f"Invalid division_str: {division_str}")
