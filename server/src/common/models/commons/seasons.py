@@ -13,7 +13,7 @@ class Season(SQLModel, table=True):
 
     __table_args__ = (
         CheckConstraint(
-            "start_year > 1970",
+            "start_year >= 1970",
             name="check_start_year_gt_1970",
         ),
     )

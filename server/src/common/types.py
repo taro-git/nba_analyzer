@@ -13,6 +13,17 @@ class Conference(Enum):
     west = "West"
     east = "East"
 
+    @classmethod
+    def from_str(cls, conference_str: str) -> "Conference":
+        """
+        カンファレンスを示す文字列から Conference Enum を返します.
+        """
+        if conference_str.lower().startswith("e"):
+            return cls.east
+        if conference_str.lower().startswith("w"):
+            return cls.west
+        raise ValueError(f"Invalid conference_str: {conference_str}")
+
 
 class Division(Enum):
     """
@@ -25,3 +36,26 @@ class Division(Enum):
     northwest = "NorthWest"
     pacific = "Pacific"
     southwest = "SouthWest"
+    midwest = "MidWest"
+
+    @classmethod
+    def from_str(cls, division_str: str) -> "Division":
+        """
+        ディビジョンを示す文字列から Division Enum を返します.
+        """
+        if division_str.lower().startswith("a"):
+            return cls.atlantic
+        if division_str.lower().startswith("c"):
+            return cls.central
+        if division_str.lower().startswith("n"):
+            return cls.northwest
+        if division_str.lower().startswith("p"):
+            return cls.pacific
+        if division_str.lower().startswith("s"):
+            if "east" in division_str.lower() or "se" in division_str.lower():
+                return cls.southeast
+            if "west" in division_str.lower() or "sw" in division_str.lower():
+                return cls.southwest
+        if division_str.lower().startswith("m"):
+            return cls.midwest
+        raise ValueError(f"Invalid division_str: {division_str}")

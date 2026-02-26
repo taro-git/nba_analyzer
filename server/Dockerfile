@@ -13,8 +13,9 @@ RUN npm ci && \
 FROM python:3-slim AS app-base
 
 WORKDIR /app/server
-COPY server/ /app/server/
-COPY --from=client-build /app/build /app/client/build
+COPY server/pyproject.toml /app/server/
+COPY server/poetry.lock /app/server/
+COPY server/src/common /app/server/src/common
 
 RUN apt update && \
     apt install -y tzdata && \
@@ -22,17 +23,28 @@ RUN apt update && \
     echo "Asia/Tokyo" > /etc/timezone && \
     apt clean && \
     pip install poetry && \
-    poetry install --without test,lint
+    poetry install --no-root --without test,lint
 
 # --------------------------------------------------
 # for development
 # --------------------------------------------------
 FROM app-base AS app-dev
+COPY server/src/rest_api /app/server/src/rest_api
+COPY --from=client-build /app/build /app/client/build
 CMD ["poetry", "run", "uvicorn", "rest_api.main:app", "--reload", "--host", "0.0.0.0", "--port", "8000"]
 
 # --------------------------------------------------
 # for production
 # --------------------------------------------------
 FROM app-base AS app-prod
+COPY server/src/rest_api /app/server/src/rest_api
+COPY --from=client-build /app/build /app/client/build
 CMD ["poetry", "run", "uvicorn", "rest_api.main:app", "--host", "0.0.0.0", "--port", "80"]
+
+# --------------------------------------------------
+# for batch server
+# --------------------------------------------------
+FROM app-base AS batch
+COPY server/src/batch /app/server/src/batch
+CMD ["poetry", "run", "python", "src/batch/main.py"]
 

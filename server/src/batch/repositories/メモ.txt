@@ -1,2 +1,0 @@
-内部DBとの通信
-model は　common_models からインポート

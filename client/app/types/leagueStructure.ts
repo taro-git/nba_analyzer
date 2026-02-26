@@ -48,6 +48,7 @@ export const Divisions = {
   NorthWest: "NorthWest",
   Pacific: "Pacific",
   SouthWest: "SouthWest",
+  MidWest: "MidWest",
 } as const;
 
 /**

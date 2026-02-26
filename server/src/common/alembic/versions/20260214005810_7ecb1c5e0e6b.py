@@ -11,8 +11,8 @@ Create Date: 2026-02-14 00:58:10.432450
 from typing import Sequence, Union
 
 import sqlalchemy as sa
-from sqlalchemy import String
 from alembic import op
+from sqlalchemy import String
 
 revision: str = "7ecb1c5e0e6b"
 down_revision: Union[str, Sequence[str], None] = None
@@ -25,7 +25,7 @@ def upgrade() -> None:
     op.create_table(
         "seasons",
         sa.Column("start_year", sa.Integer(), nullable=False),
-        sa.CheckConstraint("start_year > 1970", name="check_start_year_gt_1970"),
+        sa.CheckConstraint("start_year >= 1970", name="check_start_year_gt_1970"),
         sa.PrimaryKeyConstraint("start_year"),
     )
     op.create_table(
@@ -35,8 +35,18 @@ def upgrade() -> None:
         sa.Column("team_name", String(), nullable=False),
         sa.Column("team_tricode", String(length=3), nullable=False),
         sa.Column("conference", sa.Enum("West", "East", name="conference"), nullable=False),
-        sa.Column("division", sa.Enum("Atlantic", "Central", "SouthEast", "NorthWest", "Pacific", "SouthWest", name="division"), nullable=False),
-        sa.CheckConstraint("(conference = 'East' AND division IN ('Atlantic','Central','SouthEast')) OR (conference = 'West' AND division IN ('NorthWest','Pacific','SouthWest'))", name="check_conference_division_match"),
+        sa.Column(
+            "division",
+            sa.Enum(
+                "Atlantic", "Central", "SouthEast", "NorthWest", "Pacific", "SouthWest", "MidWest", name="division"
+            ),
+            nullable=False,
+        ),
+        sa.CheckConstraint(
+            "(conference = 'East' AND division IN ('Atlantic','Central','SouthEast'))"
+            " OR (conference = 'West' AND division IN ('NorthWest','Pacific','SouthWest','MidWest'))",
+            name="check_conference_division_match",
+        ),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_table(
