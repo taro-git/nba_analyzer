@@ -38,7 +38,7 @@ class Team(SQLModel, table=True):
         CheckConstraint(
             "(conference = 'East' AND division IN ('Atlantic','Central','SouthEast')) "
             "OR "
-            "(conference = 'West' AND division IN ('NorthWest','Pacific','SouthWest'))",
+            "(conference = 'West' AND division IN ('NorthWest','Pacific','SouthWest','MidWest'))",
             name="check_conference_division_match",
         ),
     )

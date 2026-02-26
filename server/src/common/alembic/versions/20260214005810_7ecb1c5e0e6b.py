@@ -37,12 +37,12 @@ def upgrade() -> None:
         sa.Column("conference", sa.Enum("West", "East", name="conference"), nullable=False),
         sa.Column(
             "division",
-            sa.Enum("Atlantic", "Central", "SouthEast", "NorthWest", "Pacific", "SouthWest", name="division"),
+            sa.Enum("Atlantic", "Central", "SouthEast", "NorthWest", "Pacific", "SouthWest", "MidWest", name="division"),
             nullable=False,
         ),
         sa.CheckConstraint(
             "(conference = 'East' AND division IN ('Atlantic','Central','SouthEast'))"
-            " OR (conference = 'West' AND division IN ('NorthWest','Pacific','SouthWest'))",
+            " OR (conference = 'West' AND division IN ('NorthWest','Pacific','SouthWest','MidWest'))",
             name="check_conference_division_match",
         ),
         sa.PrimaryKeyConstraint("id"),

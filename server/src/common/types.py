@@ -36,6 +36,7 @@ class Division(Enum):
     northwest = "NorthWest"
     pacific = "Pacific"
     southwest = "SouthWest"
+    midwest = "MidWest"
 
     @classmethod
     def from_str(cls, division_str: str) -> "Division":
@@ -55,4 +56,6 @@ class Division(Enum):
                 return cls.southeast
             if "west" in division_str.lower() or "sw" in division_str.lower():
                 return cls.southwest
+        if division_str.lower().startswith("m"):
+            return cls.midwest
         raise ValueError(f"Invalid division_str: {division_str}")

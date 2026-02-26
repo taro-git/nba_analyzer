@@ -181,27 +181,29 @@ export default function Teams({ loaderData }: Route.ComponentProps) {
       case TeamCategories.Division:
         return (
           <>
-            {Object.values(Divisions).map((division) => (
-              <>
-                <Box
-                  sx={{
-                    paddingLeft: 3,
-                    marginTop: 1,
-                    bgcolor: palette?.getContrastText(
-                      ConferenceFromDivisions(division) === Conferences.East ? "cold" : "warm",
-                    ),
-                  }}
-                >
-                  {division}
-                </Box>
-                <CustomTable
-                  key={`${groupBy}-${division}`}
-                  columnDefs={columnDefs}
-                  data={teamsGroupedByDivision[division] ?? []}
-                  degree={ConferenceFromDivisions(division) === Conferences.East ? "cold" : "warm"}
-                />
-              </>
-            ))}
+            {Object.values(Divisions)
+              .filter((division) => teamsGroupedByDivision[division])
+              .map((division) => (
+                <>
+                  <Box
+                    sx={{
+                      paddingLeft: 3,
+                      marginTop: 1,
+                      bgcolor: palette?.getContrastText(
+                        ConferenceFromDivisions(division) === Conferences.East ? "cold" : "warm",
+                      ),
+                    }}
+                  >
+                    {division}
+                  </Box>
+                  <CustomTable
+                    key={`${groupBy}-${division}`}
+                    columnDefs={columnDefs}
+                    data={teamsGroupedByDivision[division] ?? []}
+                    degree={ConferenceFromDivisions(division) === Conferences.East ? "cold" : "warm"}
+                  />
+                </>
+              ))}
           </>
         );
     }
