@@ -16,8 +16,8 @@ def _create_regular_season_team_standings_by_season(season: Season) -> list[Regu
     シーズンを指定して、レギュラーシーズンのチーム成績一覧を作成します.
     """
     result_set = NbaApiGateway().fetch(LeagueStandingsV3, season=season.season_str).get("resultSets", [])[0]
-    standings = result_set.get("rowSet", [])
-    headers = result_set.get("headers", [])
+    standings = result_set["rowSet"]
+    headers = result_set["headers"]
     return [
         RegularSeasonTeamStanding(
             season=season.start_year,

@@ -48,5 +48,8 @@ def remove_caches(caches: list[Cache]) -> None:
     """
     Cache を複数件削除します.
     """
+    hashes = [cache.request_hash for cache in caches]
+    if len(hashes) != len(set(hashes)):
+        raise ValueError("Duplicate cache.request_hash detected.")
     for cache in caches:
         remove_cache(cache)

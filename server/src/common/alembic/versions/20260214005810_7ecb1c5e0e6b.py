@@ -37,7 +37,9 @@ def upgrade() -> None:
         sa.Column("conference", sa.Enum("West", "East", name="conference"), nullable=False),
         sa.Column(
             "division",
-            sa.Enum("Atlantic", "Central", "SouthEast", "NorthWest", "Pacific", "SouthWest", "MidWest", name="division"),
+            sa.Enum(
+                "Atlantic", "Central", "SouthEast", "NorthWest", "Pacific", "SouthWest", "MidWest", name="division"
+            ),
             nullable=False,
         ),
         sa.CheckConstraint(
