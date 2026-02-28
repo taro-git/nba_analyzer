@@ -31,16 +31,6 @@ Enum division {
 
 Table teams {
   id integer [pk]
-  team_city varchar [not null]
-  team_name varchar [not null]
-  team_tricode varchar(3) [not null]
-  conference conference [not null]
-  division division [not null]
-
-  checks {
-    `conference = East && (division = Atlantic || division = Central || division = SouthEast)`
-    `conference = West && (division = NorthWest || division = Pacific || division = SouthWest)`
-  }
 }
 
 Table regular_season_team_standings {
@@ -52,6 +42,24 @@ Table regular_season_team_standings {
 
   indexes {
     (season, team_id) [pk]
+  }
+}
+
+Table team_properties {
+  season integer [ref: > seasons.start_year]
+  team_id integer [ref: > teams.id]
+  team_city varchar [not null]
+  team_name varchar [not null]
+  team_tricode varchar(3) [not null]
+  conference conference [not null]
+  division division [not null]
+
+  indexes {
+    (season, team_id) [pk]
+  }
+  checks {
+    `conference = East && (division = Atlantic || division = Central || division = SouthEast)`
+    `conference = West && (division = NorthWest || division = Pacific || division = SouthWest)`
   }
 }
 

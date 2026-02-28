@@ -2,7 +2,7 @@ import pytest
 from sqlmodel import Session
 
 from common.models.teams.regular_season_team_standings import RegularSeasonTeamStanding
-from common.models.teams.teams import Team
+from common.models.teams.teams import Team, TeamProperty
 from common.types import Conference, Division
 
 
@@ -50,6 +50,17 @@ def seed_teams(session: Session) -> dict[int, Team]:
     Team の初期データ
     team_id: 1~30
     """
+
+    teams = [Team(id=i + 1) for i in range(30)]
+    session.add_all(teams)
+    session.commit()
+
+    return {t.id: t for t in teams}
+
+
+@pytest.fixture
+def seed_team_properties(session: Session) -> dict[int, TeamProperty]:
+
     east_divisions = (
         [Division.atlantic for _ in range(5)]
         + [Division.central for _ in range(5)]
@@ -62,8 +73,9 @@ def seed_teams(session: Session) -> dict[int, Team]:
     )
 
     data = [
-        Team(
-            id=i + 1,
+        TeamProperty(
+            team_id=i + 1,
+            season=2022,
             team_city=f"City {i + 1}",
             team_name=f"Name {i + 1}",
             team_tricode=f"T{i + 1:02d}",
@@ -74,8 +86,9 @@ def seed_teams(session: Session) -> dict[int, Team]:
     ]
     num_of_east = len(east_divisions)
     data += [
-        Team(
-            id=i + 1 + num_of_east,
+        TeamProperty(
+            team_id=i + 1 + num_of_east,
+            season=2022,
             team_city=f"City {i + 1 + num_of_east}",
             team_name=f"Name {i + 1 + num_of_east}",
             team_tricode=f"T{i + 1 + num_of_east:02d}",
@@ -88,4 +101,4 @@ def seed_teams(session: Session) -> dict[int, Team]:
     session.add_all(data)
     session.commit()
 
-    return {team.id: team for team in data}
+    return {t.team_id: t for t in data}

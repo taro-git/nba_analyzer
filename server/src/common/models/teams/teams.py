@@ -6,12 +6,25 @@ from common.types import Conference, Division, enum_values
 
 class Team(SQLModel, table=True):
     """
-    NBA チーム情報を表すテーブル.
+    NBA チームを表すテーブル.
     """
 
     __tablename__ = "teams"  # type: ignore
 
     id: int = Field(primary_key=True)
+    """チームID"""
+
+
+class TeamProperty(SQLModel, table=True):
+    """
+    チーム情報を表すテーブル.
+    """
+
+    __tablename__ = "team_properties"  # type: ignore
+
+    season: int = Field(foreign_key="seasons.start_year", primary_key=True)
+    """シーズン開始年"""
+    team_id: int = Field(foreign_key="teams.id", primary_key=True)
     """チームID"""
     team_city: str = Field(nullable=False)
     """チームの都市名"""
@@ -35,6 +48,10 @@ class Team(SQLModel, table=True):
     """チームが所属するディビジョン"""
 
     __table_args__ = (
+        CheckConstraint(
+            "length(team_tricode) = 3",
+            name="check_tricode_length",
+        ),
         CheckConstraint(
             "(conference = 'East' AND division IN ('Atlantic','Central','SouthEast')) "
             "OR "
