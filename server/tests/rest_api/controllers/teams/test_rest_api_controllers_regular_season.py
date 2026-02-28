@@ -4,20 +4,22 @@ from sqlmodel import Session
 
 import rest_api.controllers.teams.regular_season as target
 from common.models.teams.regular_season_team_standings import RegularSeasonTeamStanding
-from common.models.teams.teams import Team
+from common.models.teams.teams import TeamProperty
 from common.types import Conference, Division
 from rest_api.schemas.commons import Season
 from rest_api.schemas.teams.regular_season import RegularSeasonTeam
 
 
-def mocker_patch(mocker: MockerFixture, mock_team: list[Team], mock_standings: list[RegularSeasonTeamStanding]) -> None:
+def mocker_patch(
+    mocker: MockerFixture, mock_team: list[TeamProperty], mock_standings: list[RegularSeasonTeamStanding]
+) -> None:
     mocker.patch(
         "rest_api.controllers.teams.regular_season.get_regular_season_team_standings",
         return_value=mock_standings,
     )
 
     mocker.patch(
-        "rest_api.controllers.teams.regular_season.get_teams_by_ids",
+        "rest_api.controllers.teams.regular_season.get_team_properties_by_ids",
         return_value=mock_team,
     )
 
@@ -29,16 +31,18 @@ def mock_success_case(mocker: MockerFixture) -> list[RegularSeasonTeam]:
         RegularSeasonTeamStanding(team_id=2, season=2023, win=8, lose=7, rank=2),
     ]
     mock_teams = [
-        Team(
-            id=1,
+        TeamProperty(
+            team_id=1,
+            season=2023,
             team_name="Team A",
             team_tricode="AAA",
             team_city="City A",
             conference=Conference.east,
             division=Division.atlantic,
         ),
-        Team(
-            id=2,
+        TeamProperty(
+            team_id=2,
+            season=2023,
             team_name="Team B",
             team_tricode="BBB",
             team_city="City B",

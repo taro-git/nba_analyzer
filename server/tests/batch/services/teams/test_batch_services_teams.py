@@ -7,17 +7,19 @@ from pytest_mock import MockerFixture
 
 from batch.services.teams.teams import sync_teams_by_season
 from batch.types import Season
-from common.models.teams.teams import Team
+from common.models.teams.teams import Team, TeamProperty
 from common.types import Conference, Division
 
 
 def mocker_patch(
     mocker: MockerFixture,
     mock_team: list[Team],
+    mock_team_properties: list[TeamProperty],
     mock_league_Standings_v3: dict[str, Any],
     mock_schedule_league_v2: dict[str, Any],
 ) -> None:
     mocker.patch("batch.services.teams.teams.get_teams", return_value=mock_team)
+    mocker.patch("batch.services.teams.teams.get_team_properties_by_season", return_value=mock_team_properties)
 
     def fetch_side_effect(
         endpoint_cls: type[LeagueStandingsV3] | type[ScheduleLeagueV2], *args: str, **kwargs: dict[str, Any]
@@ -34,6 +36,7 @@ def mocker_patch(
     )
 
     mocker.patch("batch.services.teams.teams.add_teams", return_value=None)
+    mocker.patch("batch.services.teams.teams.add_team_properties", return_value=None)
 
 
 @pytest.fixture
@@ -72,8 +75,13 @@ def build_schedule(team_ids: list[int]) -> dict[str, Any]:
 
 
 def existing_team(team_id: int) -> Team:
-    return Team(
-        id=team_id,
+    return Team(id=team_id)
+
+
+def existing_team_property(team_id: int, season: Season) -> TeamProperty:
+    return TeamProperty(
+        team_id=team_id,
+        season=season.start_year,
         team_name=f"Team{team_id}",
         team_tricode=f"T{team_id:02d}",
         conference=Conference.west,
@@ -106,8 +114,9 @@ def test_sync_teams_normal(
     mock_schedule = build_schedule(api_ids)
 
     db_teams = [existing_team(i) for i in db_ids]
+    db_team_properties = [existing_team_property(i, season) for i in db_ids]
 
-    mocker_patch(mocker, db_teams, mock_standings, mock_schedule)
+    mocker_patch(mocker, db_teams, db_team_properties, mock_standings, mock_schedule)
 
     add_mock = mocker.patch("batch.services.teams.teams.add_teams")
 
@@ -122,7 +131,7 @@ def test_missing_standings_key_raises(mocker: MockerFixture, season: Season) -> 
     mock_standings = {"invalid": "structure"}
     mock_schedule = build_schedule([1])
 
-    mocker_patch(mocker, [], mock_standings, mock_schedule)
+    mocker_patch(mocker, [], [], mock_standings, mock_schedule)
 
     with pytest.raises(IndexError):
         sync_teams_by_season(season)
@@ -132,7 +141,7 @@ def test_missing_schedule_key_raises(mocker: MockerFixture, season: Season) -> N
     mock_standings = build_standings([[1, "Team1", "West", "Pacific", "City"]])
     mock_schedule = {"invalid": "structure"}
 
-    mocker_patch(mocker, [], mock_standings, mock_schedule)
+    mocker_patch(mocker, [], [], mock_standings, mock_schedule)
 
     with pytest.raises(KeyError):
         sync_teams_by_season(season)
@@ -142,7 +151,7 @@ def test_team_in_standings_not_in_schedule_raises(mocker: MockerFixture, season:
     mock_standings = build_standings([[1, "Team1", "West", "Pacific", "City"]])
     mock_schedule = build_schedule([])
 
-    mocker_patch(mocker, [], mock_standings, mock_schedule)
+    mocker_patch(mocker, [], [], mock_standings, mock_schedule)
 
     with pytest.raises(KeyError):
         sync_teams_by_season(season)
@@ -152,7 +161,7 @@ def test_empty_schedule_raises(mocker: MockerFixture, season: Season) -> None:
     mock_standings = build_standings([[1, "Team1", "West", "Pacific", "City"]])
     mock_schedule = build_schedule([])
 
-    mocker_patch(mocker, [], mock_standings, mock_schedule)
+    mocker_patch(mocker, [], [], mock_standings, mock_schedule)
 
     with pytest.raises(KeyError):
         sync_teams_by_season(season)

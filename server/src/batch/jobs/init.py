@@ -19,8 +19,9 @@ def _init_jobs(scheduler: BlockingScheduler) -> None:
     """
     try:
         if season.start_year < 1970:
-            logger.critical("init_job remove")
+            logger.info("remove init_job")
             scheduler.get_job("init_job").remove()  # type: ignore
+            return
         sync_all_by_season(season)
         logger.info(f"init_job success: {season.season_str}")
         season.minus_one_season()
