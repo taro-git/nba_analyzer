@@ -46,7 +46,7 @@ export async function clientLoader({ request }: Route.ClientLoaderArgs): Promise
   const season = url.searchParams.get(QueryParameterKeys.Season) ?? generateSeasons()[0];
   const seasonType = url.searchParams.get(QueryParameterKeys.SeasonType) ?? SeasonTypes.Regular;
   regularSeasonTeamsApi.path = `/teams/${seasonType}/${season}`;
-  return await regularSeasonTeamsApi.getOne();
+  return await regularSeasonTeamsApi.get();
 }
 
 /**
