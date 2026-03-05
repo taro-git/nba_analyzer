@@ -4,7 +4,7 @@ from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
 
 from rest_api.schemas.commons import GameCategory, GameStatus
-from rest_api.schemas.teams.regular_season import RegularSeasonTeam
+from rest_api.schemas.teams.regular_season import Team
 
 
 class GameSummarySchema(BaseModel):
@@ -22,9 +22,9 @@ class GameSummarySchema(BaseModel):
     """ゲーム開始日時"""
     elapsed_sec: int
     """ゲーム経過秒数"""
-    home_team: RegularSeasonTeam
+    home_team: Team
     """ホームチーム"""
-    away_team: RegularSeasonTeam
+    away_team: Team
     """アウェイチーム"""
     home_team_score: int
     """ホームチームの得点"""

@@ -8,9 +8,9 @@ from common.types import Conference, Division
 from rest_api.schemas.commons import Season
 
 
-class RegularSeasonTeam(BaseModel):
+class Team(BaseModel):
     """
-    1チームのレギュラーシーズンの成績を示します.
+    チームの基本情報を示します.
     """
 
     team_id: int
@@ -21,6 +21,18 @@ class RegularSeasonTeam(BaseModel):
     """3桁のチーム略称"""
     team_logo: str
     """チームロゴ取得先 URL"""
+
+    model_config = ConfigDict(
+        alias_generator=to_camel,
+        populate_by_name=True,
+    )
+
+
+class RegularSeasonTeam(Team):
+    """
+    1チームのレギュラーシーズンの成績を示します.
+    """
+
     conference: Conference
     """カンファレンス"""
     division: Division

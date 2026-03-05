@@ -6,10 +6,9 @@ from fastapi import APIRouter, Depends, Query
 from sqlmodel import Session
 
 from common.db import get_session
-from common.types import Conference, Division
 from rest_api.schemas.commons import GameCategory, GameStatus
 from rest_api.schemas.games.game_summaries import GameSummarySchema
-from rest_api.schemas.teams.regular_season import RegularSeasonTeam
+from rest_api.schemas.teams.regular_season import Team
 
 logger = logging.getLogger(__name__)
 
@@ -25,16 +24,11 @@ async def list_game_summaries_by_datetime(
     # TODO: 実装
     if to_utc is None:
         to_utc = from_utc + timedelta(days=1)
-    team = RegularSeasonTeam(
+    team = Team(
         team_id=1610612764,
         team_name="team_name",
         team_tricode="TRI",
         team_logo="https://cdn.nba.com/logos/nba/1610612764/global/L/logo.svg",
-        conference=Conference.east,
-        division=Division.atlantic,
-        rank=1,
-        win=1,
-        lose=0,
     )
     print(session)
     return [
