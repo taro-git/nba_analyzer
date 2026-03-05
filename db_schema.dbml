@@ -112,6 +112,7 @@ Enum game_status {
 }
 
 Enum game_category {
+  "Preseason"
   "Regular Season"
   "Play Off"
   "NBA Cup"
