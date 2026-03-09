@@ -48,11 +48,11 @@ export default function Layout() {
 
   return (
     <ThemeProvider theme={theme} defaultMode="system">
-      <Box sx={{ pb: 7, pt: 2 }} ref={ref}>
-        <CssBaseline />
-
-        <Outlet />
-
+      <CssBaseline />
+      <Box sx={{ height: "100dvh" }} ref={ref}>
+        <Box sx={{ flex: 1, overflow: "auto", pb: 7 }}>
+          <Outlet />
+        </Box>
         <Paper sx={{ position: "fixed", bottom: 0, left: 0, right: 0 }} elevation={10}>
           <BottomNavigation
             showLabels

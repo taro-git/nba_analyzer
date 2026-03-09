@@ -233,7 +233,7 @@ export default function Teams({ loaderData }: Route.ComponentProps) {
 
   return (
     <>
-      <FormControl sx={{ width: "100%" }}>
+      <FormControl sx={{ width: "100%", marginTop: 2 }}>
         <InputLabel id="season-select-label">Season</InputLabel>
         <Select labelId="season-select-label" id="season-select" value={season} label="Season" onChange={seasonChange}>
           {seasons.map((season) => (
