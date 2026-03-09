@@ -3,11 +3,14 @@ import { toSeason } from "../util/season";
 import { Conferences, type Divisions } from "./leagueStructure";
 import { type Season } from "./season";
 
-export interface RegularSeasonTeam {
+export interface Team {
   teamId: number;
   teamName: string;
   teamTricode: string;
   teamLogo: string;
+}
+
+export interface RegularSeasonTeam extends Team {
   conference: Conferences;
   division: Divisions;
   rank: number;
