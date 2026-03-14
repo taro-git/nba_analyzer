@@ -12,6 +12,7 @@ describe("ConferenceFromDivisions (exhaustive)", () => {
       [Divisions.NorthWest]: Conferences.West,
       [Divisions.Pacific]: Conferences.West,
       [Divisions.SouthWest]: Conferences.West,
+      [Divisions.MidWest]: Conferences.West,
     };
 
     for (const division of Object.values(Divisions)) {

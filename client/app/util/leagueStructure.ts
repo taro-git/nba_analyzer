@@ -12,6 +12,7 @@ export function ConferenceFromDivisions(division: Divisions): Conferences {
     case Divisions.NorthWest:
     case Divisions.Pacific:
     case Divisions.SouthWest:
+    case Divisions.MidWest:
       return Conferences.West;
   }
 }
