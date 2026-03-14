@@ -1,21 +1,21 @@
 import { type ITeam } from "./teams";
 
-const IGameStatus = {
+export const IGameStatus = {
   Scheduled: "Scheduled",
   Live: "Live",
   Final: "Final",
 } as const;
 
-type IGameStatus = (typeof IGameStatus)[keyof typeof IGameStatus];
+export type IGameStatus = (typeof IGameStatus)[keyof typeof IGameStatus];
 
-const IGameCategory = {
+export const IGameCategory = {
   Preseason: "Preseason",
   RegularSeason: "Regular Season",
   Playoffs: "Playoffs",
   NBACup: "NBA Cup",
 } as const;
 
-type IGameCategory = (typeof IGameStatus)[keyof typeof IGameStatus];
+export type IGameCategory = (typeof IGameStatus)[keyof typeof IGameStatus];
 
 /**
  * API から受け取るゲームサマリーを表す schema です.

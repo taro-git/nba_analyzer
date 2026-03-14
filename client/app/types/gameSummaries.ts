@@ -1,11 +1,19 @@
-import { type IGameSummary } from "../api/schemas/gameSummaries";
+import dayjs, { type Dayjs } from "dayjs";
+
+import { IGameCategory, IGameStatus, type IGameSummary } from "../api/schemas/gameSummaries";
 import { type Team } from "./teams";
+
+export const GameStatus = IGameStatus;
+export type GameStatus = IGameStatus;
+
+export const GameCategory = IGameCategory;
+export type GameCategory = IGameCategory;
 
 export class GameSummary {
   gameId: string;
-  status: string;
-  category: string;
-  startDatetime: Date;
+  status: GameStatus;
+  category: GameCategory;
+  startDatetime: Dayjs;
   elapsedSec: number;
   homeTeam: Team;
   awayTeam: Team;
@@ -16,7 +24,7 @@ export class GameSummary {
     this.gameId = data.gameId;
     this.status = data.status;
     this.category = data.category;
-    this.startDatetime = new Date(data.startDatetime);
+    this.startDatetime = dayjs(data.startDatetime);
     this.elapsedSec = data.elapsedSec;
     this.homeTeam = data.homeTeam;
     this.awayTeam = data.awayTeam;
