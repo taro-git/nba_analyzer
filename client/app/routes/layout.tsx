@@ -20,7 +20,8 @@ export const theme = extendTheme({
           default: "#f5f5f5",
           paper: "#e9e9e9",
         },
-        getContrastText: (degree: string) => (degree == "warm" ? "#e7ded5" : degree == "cold" ? "#d1dceb" : "#e9e9e9"),
+        getContrastText: (degree: string) =>
+          degree == "warm" ? "#e7ded5" : degree == "cold" ? "#d1dceb" : degree == "monotone" ? "#ffffff" : "#e9e9e9",
       },
     },
     dark: {
@@ -32,7 +33,8 @@ export const theme = extendTheme({
           default: "#3a3a3a",
           paper: "#1d1d1d",
         },
-        getContrastText: (degree: string) => (degree == "warm" ? "#27221e" : degree == "cold" ? "#20252c" : "#1d1d1d"),
+        getContrastText: (degree: string) =>
+          degree == "warm" ? "#27221e" : degree == "cold" ? "#20252c" : degree == "monotone" ? "#000000" : "#1d1d1d",
       },
     },
   },
@@ -50,10 +52,10 @@ export default function Layout() {
     <ThemeProvider theme={theme} defaultMode="system">
       <CssBaseline />
       <Box sx={{ height: "100dvh" }} ref={ref}>
-        <Box sx={{ flex: 1, overflow: "auto", pb: 7 }}>
+        <Box sx={{ flex: 1, overflow: "auto", pb: "3.5rem" }}>
           <Outlet />
         </Box>
-        <Paper sx={{ position: "fixed", bottom: 0, left: 0, right: 0 }} elevation={10}>
+        <Paper sx={{ position: "fixed", bottom: 0, left: 0, right: 0, height: "3.5rem" }} elevation={10}>
           <BottomNavigation
             showLabels
             value={value}

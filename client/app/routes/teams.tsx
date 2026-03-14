@@ -54,6 +54,11 @@ export async function clientLoader({ request }: Route.ClientLoaderArgs): Promise
  */
 export default function Teams({ loaderData }: Route.ComponentProps) {
   // ----------------------------------------------------------------------
+  // Initial
+  // ----------------------------------------------------------------------
+  const seasons: Season[] = generateSeasons();
+
+  // ----------------------------------------------------------------------
   // Loadings
   // ----------------------------------------------------------------------
   const regularSeasonTeams = loaderData;
@@ -64,7 +69,6 @@ export default function Teams({ loaderData }: Route.ComponentProps) {
   // States
   // ----------------------------------------------------------------------
   const [searchParams, setSearchParams] = useSearchParams();
-  const seasons: Season[] = generateSeasons();
   const [season, setSeason] = useState<Season>(toSeason(searchParams.get(QueryParameterKeys.Season) ?? seasons[0]));
   const [groupBy, setGroupBy] = useState<TeamCategories>(TeamCategories.Conference);
 
@@ -150,6 +154,7 @@ export default function Teams({ loaderData }: Route.ComponentProps) {
   const palette = useMemo(() => {
     return systemMode === "light" ? theme.colorSchemes.light?.palette : theme.colorSchemes.dark?.palette;
   }, [systemMode]);
+
   const regularSeasonTeamsView: (groupBy: TeamCategories) => ReactNode = (groupBy) => {
     switch (groupBy) {
       case TeamCategories.All:
@@ -215,12 +220,22 @@ export default function Teams({ loaderData }: Route.ComponentProps) {
       query: SeasonTypes.Regular,
       item: (
         <>
-          <RadioGroup sx={{ paddingLeft: 3 }} row onChange={onChangeGroupBy} value={groupBy}>
+          <RadioGroup sx={{ paddingLeft: 3, height: "3rem" }} row onChange={onChangeGroupBy} value={groupBy}>
             <FormControlLabel value={TeamCategories.All} control={<Radio />} label="All" />
             <FormControlLabel value={TeamCategories.Conference} control={<Radio />} label="Conference" />
             <FormControlLabel value={TeamCategories.Division} control={<Radio />} label="Division" />
           </RadioGroup>
-          {regularSeasonTeamsView(groupBy)}
+          <div
+            style={{
+              height: "calc(100dvh - 14rem)",
+              width: "100%",
+              overflowY: "auto",
+              display: "grid",
+              alignContent: "start",
+            }}
+          >
+            {regularSeasonTeamsView(groupBy)}
+          </div>
         </>
       ),
     },
@@ -233,9 +248,16 @@ export default function Teams({ loaderData }: Route.ComponentProps) {
 
   return (
     <>
-      <FormControl sx={{ width: "100%", marginTop: 2 }}>
+      <FormControl sx={{ width: "100%", height: "3.5rem", marginTop: "1rem" }}>
         <InputLabel id="season-select-label">Season</InputLabel>
-        <Select labelId="season-select-label" id="season-select" value={season} label="Season" onChange={seasonChange}>
+        <Select
+          sx={{ height: "100%", padding: "0" }}
+          labelId="season-select-label"
+          id="season-select"
+          value={season}
+          label="Season"
+          onChange={seasonChange}
+        >
           {seasons.map((season) => (
             <MenuItem key={season} value={season}>
               {season}

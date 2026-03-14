@@ -2,11 +2,11 @@ import { CalendarMonth, Refresh } from "@mui/icons-material";
 import { Avatar, Dialog, Grid, IconButton, useColorScheme } from "@mui/material";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
+import { type PickerValue } from "@mui/x-date-pickers/internals";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 
-import dayjs, { type Dayjs } from "dayjs";
+import dayjs from "dayjs";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useSearchParams } from "react-router";
 import "swiper/css";
 import { Virtual } from "swiper/modules";
 import { Swiper, type SwiperClass, SwiperSlide } from "swiper/react";
@@ -28,32 +28,28 @@ export const QueryParameterKeysOfSwipeCalendar = {
 export type QueryParameterKeysOfSwipeCalendar =
   (typeof QueryParameterKeysOfSwipeCalendar)[keyof typeof QueryParameterKeysOfSwipeCalendar];
 
-function getDaysFromStartByQueryParameter(start: Dayjs, searchParams: URLSearchParams): number {
-  const param = searchParams.get(QueryParameterKeysOfSwipeCalendar.GameDate);
-  if (param == null) {
-    return dayjs().diff(start, "day");
-  }
-  return dayjs(searchParams.get(QueryParameterKeysOfSwipeCalendar.GameDate)).diff(start, "day");
-}
+type Props = {
+  selectedDate: Date;
+  setSelectedDate: (d: Date) => void;
+};
 
 /**
  * nba_analyzer 向けのカレンダーコンポーネントです.
  */
-export default function SwipeCalendar() {
+export default function SwipeCalendar({ selectedDate, setSelectedDate }: Props) {
   // ----------------------------------------------------------------------
-  // Initialization
+  // Initial
   // ----------------------------------------------------------------------
   const start = dayjs("1970-10-01");
   const today = dayjs();
   const end = today.month() <= 8 ? dayjs(`${today.year()}-09-30`) : dayjs(`${today.year() + 1}-09-30`);
   const startDate = new Date(start);
   const daysFromCenterToVisibleEdge = 61;
+  const initialDaysFromStart = selectedDate.getAddedDayjs().diff(start, "day");
 
   // ----------------------------------------------------------------------
   // States
   // ----------------------------------------------------------------------
-  const [searchParams, setSearchParams] = useSearchParams();
-  const initialDaysFromStart = getDaysFromStartByQueryParameter(start, searchParams);
   const [daysFromStartToVisibleBeginning, setDaysFromStartToVisibleBeginning] = useState(
     initialDaysFromStart - daysFromCenterToVisibleEdge,
   );
@@ -64,23 +60,28 @@ export default function SwipeCalendar() {
   const [centeredDaysFromStart, setCenteredDaysFromStart] = useState<number>(initialDaysFromStart);
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [calendarValue, setCalendarValue] = useState(startDate.getAddedDayjs(selectedDaysFromStart));
+
+  // ----------------------------------------------------------------------
+  // Refs
+  // ----------------------------------------------------------------------
+  const swiperRef = useRef<SwiperClass | null>(null);
+
+  // ----------------------------------------------------------------------
+  // Events
+  // ----------------------------------------------------------------------
   const visibleDaysFromStart = useMemo(() => {
     return Array.from(
       { length: Math.min(end.diff(start, "day"), daysFromStartToVisibleEnd) - daysFromStartToVisibleBeginning + 1 },
       (_, i) => daysFromStartToVisibleBeginning + i,
     );
   }, [daysFromStartToVisibleBeginning, daysFromStartToVisibleEnd]);
-  const swiperRef = useRef<SwiperClass | null>(null);
 
-  // ----------------------------------------------------------------------
-  // Events
-  // ----------------------------------------------------------------------
   useEffect(() => {
-    const days = getDaysFromStartByQueryParameter(start, searchParams);
+    const days = selectedDate.getAddedDayjs().diff(start, "day");
     if (days !== selectedDaysFromStart) {
       dateChange(days);
     }
-  }, [searchParams]);
+  }, [selectedDate]);
 
   const dateChange = (daysFromStart: number) => {
     setSelectedDaysFromStart(daysFromStart);
@@ -89,14 +90,28 @@ export default function SwipeCalendar() {
     setDaysFromStartToVisibleEnd(daysFromStart + daysFromCenterToVisibleEdge);
     centeringDate(nextBeginning == 0 ? daysFromStart : daysFromCenterToVisibleEdge);
     setCenteredDaysFromStart(daysFromStart);
-    setSearchParams(
-      (prev) => {
-        prev.set(QueryParameterKeysOfSwipeCalendar.GameDate, startDate.getAddedDateString(daysFromStart));
-        return prev;
-      },
-      { replace: true },
-    );
     setCalendarValue(startDate.getAddedDayjs(daysFromStart));
+  };
+
+  const refreshOnClick = () => {
+    const daysFromStart = today.diff(start, "day");
+    dateChange(daysFromStart);
+    setSelectedDate(new Date(startDate.getAddedDayjs(daysFromStart)));
+  };
+
+  const dateCalendarOnChange = (value: PickerValue) => {
+    if (value == null) return;
+    const daysFromStart = value.diff(start, "day");
+    dateChange(daysFromStart);
+    setSelectedDate(new Date(startDate.getAddedDayjs(daysFromStart)));
+    setCalendarOpen(false);
+  };
+
+  const swiperOnClick = (daysFromStart: number) => {
+    if (daysFromStart !== selectedDaysFromStart) {
+      dateChange(daysFromStart);
+      setSelectedDate(new Date(startDate.getAddedDayjs(daysFromStart)));
+    }
   };
 
   const centeringDate = (index: number) => {
@@ -136,31 +151,13 @@ export default function SwipeCalendar() {
   const palette = useMemo(() => {
     return systemMode === "light" ? theme.colorSchemes.light?.palette : theme.colorSchemes.dark?.palette;
   }, [systemMode]);
+  const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
 
   return (
     <>
-      <Grid container spacing={0} sx={{ bgcolor: palette?.background?.paper, padding: 1 }}>
-        <Grid display="flex" justifyContent="center" alignItems="center" size={2}>
-          <IconButton
-            sx={{
-              color: palette?.text?.primary,
-              borderColor: palette?.text?.primary,
-              "&:hover": {
-                color: palette?.primary?.main,
-                borderColor: palette?.primary?.main,
-              },
-              fontSize: "1rem",
-            }}
-            onClick={() => dateChange(today.diff(start, "day"))}
-          >
-            <Refresh />
-          </IconButton>
-        </Grid>
-        <Grid display="flex" justifyContent="center" alignItems="center" size="grow" fontSize="1.5rem">
-          {`${startDate.getAddedYear(centeredDaysFromStart)}/${startDate.getAddedMonth(centeredDaysFromStart)}`}
-        </Grid>
-        <Grid display="flex" justifyContent="center" alignItems="center" size={2}>
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <div style={{ height: "7.5rem" }}>
+        <Grid container spacing={0} sx={{ bgcolor: palette?.background?.paper, padding: "0.5rem", height: "3.5rem" }}>
+          <Grid display="flex" justifyContent="center" alignItems="center" size={2}>
             <IconButton
               sx={{
                 color: palette?.text?.primary,
@@ -171,100 +168,113 @@ export default function SwipeCalendar() {
                 },
                 fontSize: "1rem",
               }}
-              onClick={() => setCalendarOpen(true)}
+              onClick={refreshOnClick}
             >
-              <CalendarMonth />
+              <Refresh />
             </IconButton>
-
-            <Dialog open={calendarOpen} onClose={() => setCalendarOpen(false)}>
-              <DateCalendar
-                value={calendarValue}
-                minDate={start}
-                maxDate={end}
-                onChange={(newValue) => {
-                  if (newValue != null) {
-                    dateChange(newValue.diff(start, "day"));
-                    setCalendarOpen(false);
-                  }
+          </Grid>
+          <Grid display="flex" justifyContent="center" alignItems="center" size="grow" fontSize="1.5rem">
+            {`${startDate.getAddedYear(centeredDaysFromStart)}/${startDate.getAddedMonth(centeredDaysFromStart)}`}
+          </Grid>
+          <Grid display="flex" justifyContent="center" alignItems="center" size={2}>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <IconButton
+                sx={{
+                  color: palette?.text?.primary,
+                  borderColor: palette?.text?.primary,
+                  "&:hover": {
+                    color: palette?.primary?.main,
+                    borderColor: palette?.primary?.main,
+                  },
+                  fontSize: "1rem",
                 }}
-              />
-            </Dialog>
-          </LocalizationProvider>
+                onClick={() => setCalendarOpen(true)}
+              >
+                <CalendarMonth />
+              </IconButton>
+
+              <Dialog open={calendarOpen} onClose={() => setCalendarOpen(false)}>
+                <DateCalendar value={calendarValue} minDate={start} maxDate={end} onChange={dateCalendarOnChange} />
+              </Dialog>
+            </LocalizationProvider>
+          </Grid>
         </Grid>
-      </Grid>
-      <Grid container spacing={0} sx={{ bgcolor: palette?.background?.paper, padding: 1 }}>
-        <Grid display="flex" justifyContent="center" alignItems="center" size="grow">
-          <Swiper
-            modules={[Virtual]}
-            centeredSlides={true}
-            centeredSlidesBounds={true}
-            slidesPerView={3}
-            spaceBetween={0}
-            breakpoints={{
-              340: {
-                slidesPerView: 7,
-              },
-              600: {
-                slidesPerView: 11,
-              },
-              900: {
-                slidesPerView: 15,
-              },
-              1200: {
-                slidesPerView: 19,
-              },
-            }}
-            virtual
-            initialSlide={daysFromCenterToVisibleEdge}
-            onSwiper={(swiper) => (swiperRef.current = swiper)}
-            onSlideChange={(swiper) => {
-              const index = swiper.activeIndex;
-              setCenteredDaysFromStart(visibleDaysFromStart[index]);
-            }}
-            onReachEnd={() => {
-              setDaysFromStartToVisibleEnd((prev) => prev + daysFromCenterToVisibleEdge);
-            }}
-            onReachBeginning={() => {
-              onReachBeginning();
-            }}
-          >
-            {visibleDaysFromStart.map((d, i) => {
-              return (
-                <SwiperSlide key={i} virtualIndex={i} onClick={() => dateChange(d)} className="center-items">
-                  <Avatar
-                    sx={{
-                      backgroundColor: palette?.background.paper,
-                      borderColor: d === selectedDaysFromStart ? palette?.primary.main : palette?.text.primary,
-                      borderWidth: d === selectedDaysFromStart ? 4 : 1,
-                      color: d === selectedDaysFromStart ? palette?.primary.main : palette?.text.primary,
-                      display: "grid",
-                      placeItems: "center",
-                    }}
-                    variant="rounded"
-                  >
-                    <div style={{ fontSize: "1.5rem" }}>{startDate.getAddedDate(d)}</div>
-                    <div
-                      style={{
-                        fontSize: "0.5rem",
-                        color:
-                          d === selectedDaysFromStart
-                            ? palette?.primary.main
-                            : startDate.getAddedDay(d) === Day.Sun
-                              ? "red"
-                              : startDate.getAddedDay(d) === Day.Sat
-                                ? "skyblue"
-                                : palette?.text?.primary,
+        <Grid container spacing={0} sx={{ bgcolor: palette?.background?.paper, padding: "0.5rem", height: "4rem" }}>
+          <Grid display="flex" justifyContent="center" alignItems="center" size="grow">
+            <Swiper
+              modules={[Virtual]}
+              centeredSlides={true}
+              centeredSlidesBounds={true}
+              slidesPerView={3}
+              spaceBetween={0}
+              breakpoints={{
+                [rem * 22]: {
+                  slidesPerView: 7,
+                },
+                [rem * 37.5]: {
+                  slidesPerView: 11,
+                },
+                [rem * 56.25]: {
+                  slidesPerView: 15,
+                },
+                [rem * 82.5]: {
+                  slidesPerView: 19,
+                },
+              }}
+              virtual
+              initialSlide={daysFromCenterToVisibleEdge}
+              onSwiper={(swiper) => (swiperRef.current = swiper)}
+              onSlideChange={(swiper) => {
+                const index = swiper.activeIndex;
+                setCenteredDaysFromStart(visibleDaysFromStart[index]);
+              }}
+              onReachEnd={() => {
+                setDaysFromStartToVisibleEnd((prev) => prev + daysFromCenterToVisibleEdge);
+              }}
+              onReachBeginning={() => {
+                onReachBeginning();
+              }}
+            >
+              {visibleDaysFromStart.map((d, i) => {
+                return (
+                  <SwiperSlide key={i} virtualIndex={i} onClick={() => swiperOnClick(d)} className="center-items">
+                    <Avatar
+                      sx={{
+                        backgroundColor: palette?.background.paper,
+                        borderColor: d === selectedDaysFromStart ? palette?.primary.main : palette?.text.primary,
+                        borderWidth: d === selectedDaysFromStart ? "0.25rem" : "0.0625rem",
+                        color: d === selectedDaysFromStart ? palette?.primary.main : palette?.text.primary,
+                        height: "2.5rem",
+                        width: "2.5rem",
+                        display: "grid",
+                        placeItems: "center",
                       }}
+                      variant="rounded"
                     >
-                      {startDate.getAddedDay(d)}
-                    </div>
-                  </Avatar>
-                </SwiperSlide>
-              );
-            })}
-          </Swiper>
+                      <div style={{ fontSize: "1.5rem" }}>{startDate.getAddedDate(d)}</div>
+                      <div
+                        style={{
+                          fontSize: "0.5rem",
+                          color:
+                            d === selectedDaysFromStart
+                              ? palette?.primary.main
+                              : startDate.getAddedDay(d) === Day.Sun
+                                ? "red"
+                                : startDate.getAddedDay(d) === Day.Sat
+                                  ? "skyblue"
+                                  : palette?.text?.primary,
+                        }}
+                      >
+                        {startDate.getAddedDay(d)}
+                      </div>
+                    </Avatar>
+                  </SwiperSlide>
+                );
+              })}
+            </Swiper>
+          </Grid>
         </Grid>
-      </Grid>
+      </div>
     </>
   );
 }

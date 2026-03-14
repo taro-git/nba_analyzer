@@ -20,8 +20,6 @@ export abstract class BaseApi<
   }
 
   protected buildUrl(): URL {
-    console.log(this._path);
-    console.log(BaseApi.BASE_URL);
     return new URL(this._path, BaseApi.BASE_URL);
   }
 
