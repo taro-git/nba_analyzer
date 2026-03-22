@@ -25,14 +25,14 @@ class Season(str):
     def validate(cls, season: str) -> str:
         match = re.fullmatch(r"(\d{4})-(\d{2})", season)
         if not match:
-            raise ValueError("season must be YYYY-YY format and >= 1970-71")
+            raise ValueError("season must be YYYY-YY format and >= 1983-84")
 
         year_str, suffix = match.groups()
         year = int(year_str)
         expected_suffix = f"{(year + 1) % 100:02d}"
 
-        if year < 1970 or suffix != expected_suffix:
-            raise ValueError("season must be YYYY-YY format and >= 1970-71")
+        if year < 1983 or suffix != expected_suffix:
+            raise ValueError("season must be YYYY-YY format and >= 1983-84")
         return season
 
 

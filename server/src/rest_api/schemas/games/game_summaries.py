@@ -30,6 +30,8 @@ class GameSummarySchema(BaseModel):
     """ホームチームの得点"""
     away_team_score: int
     """アウェイチームの得点"""
+    playoff_label: str | None
+    """プレーオフの詳細を表すラベル"""
 
     model_config = ConfigDict(
         alias_generator=to_camel,

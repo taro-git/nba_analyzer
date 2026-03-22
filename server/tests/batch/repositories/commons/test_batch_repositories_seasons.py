@@ -54,6 +54,6 @@ def test_add_seasons_error_in_duplicate_season(mock_engine: Engine, seed_seasons
         add_seasons([Season(start_year=2022)])
 
 
-def test_add_seasons_error_in_before_1970(mock_engine: Engine, seed_seasons: None) -> None:
+def test_add_seasons_error_in_before_1983(mock_engine: Engine, seed_seasons: None) -> None:
     with pytest.raises(IntegrityError):
-        add_seasons([Season(start_year=1969)])
+        add_seasons([Season(start_year=1982)])
