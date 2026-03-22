@@ -11,7 +11,7 @@ Table seasons {
   start_year integer [pk]
 
   checks {
-    `start_year > 1970`
+    `start_year > 1983`
   }
 }
 
@@ -51,8 +51,8 @@ Table team_properties {
   team_city varchar [not null]
   team_name varchar [not null]
   team_tricode varchar(3) [not null]
-  conference conference [not null]
-  division division [not null]
+  conference conference
+  division division
 
   indexes {
     (season, team_id) [pk]
@@ -60,6 +60,7 @@ Table team_properties {
   checks {
     `conference = East && (division = Atlantic || division = Central || division = SouthEast)`
     `conference = West && (division = NorthWest || division = Pacific || division = SouthWest)`
+    `conference = null && division = null`
   }
 }
 
@@ -114,8 +115,10 @@ Enum game_status {
 Enum game_category {
   "Preseason"
   "Regular Season"
-  "Play Off"
+  "All Star"
+  "Playoffs"
   "NBA Cup"
+  "Play-In Tournament"
 }
 
 Table games {
@@ -130,6 +133,7 @@ Table games {
   away_team_id integer [not null, ref: > teams.id]
   home_score integer [not null]
   away_score integer [not null]
+  playoff_label varchar
 }
 
 Table game_players {
