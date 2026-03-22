@@ -77,6 +77,13 @@ class GameCategory(str):
 
     @classmethod
     def validate(cls, game_category: str) -> str:
-        if game_category not in ["Preseason", "Regular Season", "Playoffs", "NBA Cup"]:
+        if game_category not in [
+            "Preseason",
+            "Regular Season",
+            "Playoffs",
+            "NBA Cup",
+            "Play-In Tournament",
+            "All Star",
+        ]:
             raise ValueError("game_category must be Preseason, Regular Season, Playoffs or NBA Cup")
         return game_category

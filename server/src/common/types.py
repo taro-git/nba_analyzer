@@ -59,3 +59,44 @@ class Division(Enum):
         if division_str.lower().startswith("m"):
             return cls.midwest
         raise ValueError(f"Invalid division_str: {division_str}")
+
+
+class GameCategory(Enum):
+    preseason = "Preseason"
+    regular_season = "Regular Season"
+    all_star = "All Star"
+    playoffs = "Playoffs"
+    playin_tournament = "Play-In Tournament"
+    nba_cup = "NBA Cup"
+
+    @classmethod
+    def from_game_id(cls, game_id: str) -> "GameCategory":
+        if game_id[2] == "1" or game_id[2] == "9":
+            return cls.preseason
+        if game_id[2] == "2":
+            return cls.regular_season
+        if game_id[2] == "3":
+            return cls.all_star
+        if game_id[2] == "4":
+            return cls.playoffs
+        if game_id[2] == "5":
+            return cls.playin_tournament
+        if game_id[2] == "6":
+            return cls.nba_cup
+        raise ValueError(f"Invalid game_id: {game_id}")
+
+
+class GameStatus(Enum):
+    scheduled = "Scheduled"
+    live = "Live"
+    final = "Final"
+
+    @classmethod
+    def from_status_id(cls, status_id: int) -> "GameStatus":
+        if status_id == 1:
+            return cls.scheduled
+        if status_id == 2:
+            return cls.live
+        if status_id == 3:
+            return cls.final
+        raise ValueError(f"Invalid status_id: {status_id}")
