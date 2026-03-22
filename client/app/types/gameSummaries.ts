@@ -19,6 +19,7 @@ export class GameSummary {
   awayTeam: Team;
   homeTeamScore: number;
   awayTeamScore: number;
+  playoffLabel?: string;
 
   constructor(data: IGameSummary) {
     this.gameId = data.gameId;
@@ -30,5 +31,6 @@ export class GameSummary {
     this.awayTeam = data.awayTeam;
     this.homeTeamScore = data.homeTeamScore;
     this.awayTeamScore = data.awayTeamScore;
+    this.playoffLabel = data.playoffLabel;
   }
 }

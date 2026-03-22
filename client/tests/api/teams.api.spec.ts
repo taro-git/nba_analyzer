@@ -54,7 +54,7 @@ describe("RegularSeasonTeamsApi.resIsIRes", () => {
     expect(new testWrapperClass().testResIsIRes({ season: "2023-25", teams: [] })).toBe(false);
   });
 
-  it("returns false if season year is less than 1970", () => {
+  it("returns false if season year is less than 1983", () => {
     expect(new testWrapperClass().testResIsIRes({ season: "1969-70", teams: [] })).toBe(false);
   });
 

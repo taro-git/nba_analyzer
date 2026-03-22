@@ -29,7 +29,7 @@ export class RegularSeasonTeams {
   teams: RegularSeasonTeam[];
 
   constructor(data?: IRegularSeasonTeams) {
-    this.season = toSeason(data?.season ?? "1970-71");
+    this.season = toSeason(data?.season ?? "1983-84");
     const eastBestDiffWinLose =
       data?.teams
         .filter((team) => team.conference === Conferences.East)

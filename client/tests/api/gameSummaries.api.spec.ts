@@ -1,3 +1,5 @@
+import { GameCategory } from "~/types/gameSummaries";
+
 import { describe, expect, it } from "vitest";
 
 import { GameSummariesApi } from "../../app/api/gameSummaries.api";
@@ -36,6 +38,7 @@ describe("GameSummariesApi.resIsIRes", () => {
     awayTeam: validAwayTeam,
     homeTeamScore: 0,
     awayTeamScore: 0,
+    playoffLabel: null,
   };
 
   const validRegularSeasonGameSummary = {
@@ -57,6 +60,21 @@ describe("GameSummariesApi.resIsIRes", () => {
     gameId: "4",
     status: IGameStatus.Final,
     category: IGameCategory.Playoffs,
+    playoffLabel: "East Conference Finals Game 1",
+  };
+
+  const validPlayInTournamentGameSummary = {
+    ...validPreseasonGameSummary,
+    gameId: "5",
+    status: IGameStatus.Final,
+    category: IGameCategory.PlayInTournament,
+  };
+
+  const validAllStarGameSummary = {
+    ...validPreseasonGameSummary,
+    gameId: "6",
+    status: IGameStatus.Final,
+    category: IGameCategory.AllStar,
   };
 
   const validArray = [
@@ -64,6 +82,8 @@ describe("GameSummariesApi.resIsIRes", () => {
     validRegularSeasonGameSummary,
     validNBACupGameSummary,
     validPlayoffsGameSummary,
+    validPlayInTournamentGameSummary,
+    validAllStarGameSummary,
   ];
 
   it("returns true for valid IGameSummary array", () => {
@@ -97,14 +117,57 @@ describe("GameSummariesApi.resIsIRes", () => {
     ["homeTeamScore invalid", (o: Record<string, unknown>) => (o.homeTeamScore = "0")],
     ["awayTeamScore missing", (o: Record<string, unknown>) => delete o.awayTeamScore],
     ["awayTeamScore invalid", (o: Record<string, unknown>) => (o.awayTeamScore = "0")],
+    ["playoffLabel missing", (o: Record<string, unknown>) => delete o.playoffLabel],
+    [
+      "playoffLabel invalid type",
+      (o: Record<string, unknown>) => {
+        if (o.category === GameCategory.Playoffs) o.playoffLabel = 1;
+      },
+    ],
+    [
+      "playoffs Don't have playoffLabel",
+      (o: Record<string, unknown>) => {
+        if (o.category === GameCategory.Playoffs) o.playoffLabel = null;
+      },
+    ],
+    [
+      "preseason have playoffLabel",
+      (o: Record<string, unknown>) => {
+        if (o.category === GameCategory.Preseason) o.playoffLabel = "East Conference Finals Game 1";
+      },
+    ],
+    [
+      "regularSeason have playoffLabel",
+      (o: Record<string, unknown>) => {
+        if (o.category === GameCategory.RegularSeason) o.playoffLabel = "East Conference Finals Game 1";
+      },
+    ],
+    [
+      "nbaCup have playoffLabel",
+      (o: Record<string, unknown>) => {
+        if (o.category === GameCategory.NBACup) o.playoffLabel = "East Conference Finals Game 1";
+      },
+    ],
+    [
+      "playInTournament have playoffLabel",
+      (o: Record<string, unknown>) => {
+        if (o.category === GameCategory.PlayInTournament) o.playoffLabel = "East Conference Finals Game 1";
+      },
+    ],
+    [
+      "allStar have playoffLabel",
+      (o: Record<string, unknown>) => {
+        if (o.category === GameCategory.AllStar) o.playoffLabel = "East Conference Finals Game 1";
+      },
+    ],
   ] as const;
 
   baseInvalidCases.forEach(([name, mutate]) => {
     it(`returns false if ${name}`, () => {
-      const obj = { ...validPreseasonGameSummary };
-      mutate(obj);
+      const array = [...validArray];
+      array.map((o) => mutate(o));
 
-      expect(api.testResIsIRes([obj])).toBe(false);
+      expect(api.testResIsIRes(array)).toBe(false);
     });
   });
 

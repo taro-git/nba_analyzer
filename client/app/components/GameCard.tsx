@@ -1,5 +1,7 @@
 import { Avatar, Box, Paper, Typography, useColorScheme } from "@mui/material";
 
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
 import { useMemo } from "react";
 import { Link } from "react-router";
 
@@ -7,6 +9,8 @@ import { BASE_URL } from "../routes";
 import { theme } from "../routes/layout";
 import { GameStatus, type GameSummary } from "../types/gameSummaries";
 import { type Team } from "../types/teams";
+
+dayjs.extend(utc);
 
 type Props = {
   gameSummary: GameSummary;
@@ -19,8 +23,8 @@ type Props = {
 function TeamBlock({ team }: { team: Team }) {
   return (
     <Box textAlign="center">
-      <Avatar src={team.teamLogo} sx={{ width: "4rem", height: "3rem", margin: "0 auto" }} />
-      <Typography fontSize="1.25rem">{team.teamTricode}</Typography>
+      <Avatar src={team.teamLogo} sx={{ width: "4rem", height: "4rem", margin: "0 auto", borderRadius: 0 }} />
+      <Typography fontSize="0.75rem">{team.teamTricode}</Typography>
     </Box>
   );
 }
@@ -51,7 +55,7 @@ export default function GameCard({ gameSummary, showScore = true }: Props) {
 
     switch (gameSummary.status) {
       case GameStatus.Scheduled: {
-        return `Start ${date.format("DD HH:MM")}`;
+        return `Scheduled at ${dayjs(date).local().format("HH:mm")}`;
       }
 
       case GameStatus.Live: {
@@ -67,28 +71,39 @@ export default function GameCard({ gameSummary, showScore = true }: Props) {
     }
   };
 
+  /**
+   * サブステータス文字列
+   */
+  const subStatusText = () => {
+    if (gameSummary.playoffLabel) return gameSummary.playoffLabel;
+    return gameSummary.category;
+  };
+
   return (
     <Paper
       component={Link}
       to={`/${BASE_URL}/games/${gameSummary.gameId}`}
       sx={{
         width: "85%",
-        height: "8rem",
+        height: "9rem",
         borderRadius: 2,
         bgcolor: palette?.getContrastText("monotone"),
         "&:hover": {
           bgcolor: palette?.getContrastText(""),
         },
         my: "1rem",
-        mx: "2rem",
-        p: "1rem",
+        mx: "1.5rem",
+        p: "0.5rem",
       }}
       elevation={5}
     >
-      <Typography textAlign="center" fontWeight="bold" fontSize="1.25rem" mb="1rem">
+      <Typography textAlign="center" fontWeight="bold" fontSize="1.25rem" mb="0.25rem">
         {statusText()}
       </Typography>
-      <Box display="flex" alignItems="center" justifyContent="space-between" px="1rem">
+      <Typography textAlign="center" fontSize="0.75rem">
+        {subStatusText()}
+      </Typography>
+      <Box display="flex" alignItems="center" justifyContent="space-between" px="0rem">
         <TeamBlock team={gameSummary.awayTeam} />
         {showScore && <Score value={gameSummary.awayTeamScore} />}
         <Typography fontSize="1.8rem">-</Typography>

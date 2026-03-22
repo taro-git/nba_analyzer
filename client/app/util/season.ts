@@ -8,7 +8,7 @@ export function isSeason(value: string): value is Season {
   const suffix = match[2];
   const expected = String((year + 1) % 100).padStart(2, "0");
 
-  return year >= 1970 && suffix === expected;
+  return year >= 1983 && suffix === expected;
 }
 
 /**
@@ -16,17 +16,17 @@ export function isSeason(value: string): value is Season {
  */
 export function toSeason(value: string): Season {
   if (!isSeason(value)) {
-    throw new Error("Season must be YYYY-YY where YY = (YYYY+1)%100 and YYYY >= 1970");
+    throw new Error("Season must be YYYY-YY where YY = (YYYY+1)%100 and YYYY >= 1983");
   }
   return value as Season;
 }
 
 /**
  * シーズン一覧を生成します.
- * デフォルトでは 1970-71 を最古のシーズンとします.
+ * デフォルトでは 1983-84 を最古のシーズンとします.
  * シーズンは 10 月始まりとします.
  */
-export function generateSeasons(startYear = 1970, date = new Date()): Season[] {
+export function generateSeasons(startYear = 1983, date = new Date()): Season[] {
   const currentStartYear = date.getMonth() + 1 >= 9 ? date.getFullYear() : date.getFullYear() - 1;
   return Array.from({ length: currentStartYear - startYear + 1 }, (_, i) => {
     const y = startYear + i;

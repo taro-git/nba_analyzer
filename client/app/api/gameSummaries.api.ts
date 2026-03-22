@@ -36,7 +36,9 @@ export class GameSummariesApi extends BaseApi<undefined, GameSummariesQuery, IGa
           (item.category === "Preseason" ||
             item.category === "Regular Season" ||
             item.category === "Playoffs" ||
-            item.category === "NBA Cup") &&
+            item.category === "NBA Cup" ||
+            item.category === "Play-In Tournament" ||
+            item.category === "All Star") &&
           "startDatetime" in item &&
           typeof item.startDatetime === "string" &&
           "elapsedSec" in item &&
@@ -48,7 +50,10 @@ export class GameSummariesApi extends BaseApi<undefined, GameSummariesQuery, IGa
           "homeTeamScore" in item &&
           typeof item.homeTeamScore === "number" &&
           "awayTeamScore" in item &&
-          typeof item.awayTeamScore === "number",
+          typeof item.awayTeamScore === "number" &&
+          "playoffLabel" in item &&
+          ((item.playoffLabel === null && item.category !== "Playoffs") ||
+            (typeof item.playoffLabel === "string" && item.category === "Playoffs")),
       )
     );
   }

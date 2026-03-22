@@ -40,7 +40,7 @@ export default function SwipeCalendar({ selectedDate, setSelectedDate }: Props) 
   // ----------------------------------------------------------------------
   // Initial
   // ----------------------------------------------------------------------
-  const start = dayjs("1970-10-01");
+  const start = dayjs("1983-10-01");
   const today = dayjs();
   const end = today.month() <= 8 ? dayjs(`${today.year()}-09-30`) : dayjs(`${today.year() + 1}-09-30`);
   const startDate = new Date(start);

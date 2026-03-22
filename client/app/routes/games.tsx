@@ -8,7 +8,7 @@ import { gameSummariesApi } from "../api/gameSummaries.api";
 import GameCard from "../components/GameCard";
 import SwipeCalendar, { QueryParameterKeysOfSwipeCalendar } from "../components/SwipeCalendar";
 import { Date } from "../types/date";
-import { type GameSummary } from "../types/gameSummaries";
+import { GameStatus, type GameSummary } from "../types/gameSummaries";
 import { type Route } from "./+types/games";
 
 function getDateFromQueryParameter(params: URLSearchParams): Date {
@@ -44,6 +44,15 @@ export async function clientLoader({ request }: Route.ClientLoaderArgs): Promise
  */
 export default function Games({ loaderData }: Route.ComponentProps) {
   // ----------------------------------------------------------------------
+  // Initial
+  // ----------------------------------------------------------------------
+  const startEpoch = new Date(dayjs("1983-10-01")).getAddedEpochSec();
+  const today = dayjs();
+  const endEpoch = new Date(
+    today.month() <= 8 ? dayjs(`${today.year()}-09-30`) : dayjs(`${today.year() + 1}-09-30`),
+  ).getAddedEpochSec();
+
+  // ----------------------------------------------------------------------
   // Loadings
   // ----------------------------------------------------------------------
   const games = loaderData.games;
@@ -53,13 +62,13 @@ export default function Games({ loaderData }: Route.ComponentProps) {
   // ----------------------------------------------------------------------
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedDate, setSelectedDate] = useState<Date>(getDateFromQueryParameter(searchParams));
+  const [swiper, setSwiper] = useState<SwiperClass | null>(null);
 
   // ----------------------------------------------------------------------
   // Refs
   // ----------------------------------------------------------------------
   const activeSlideIndex = useRef<number>(SLIDES_RANGE);
   const isSlideReset = useRef<boolean>(false);
-  const swiperRef = useRef<SwiperClass | null>(null);
   const scrollRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   // ----------------------------------------------------------------------
@@ -77,13 +86,16 @@ export default function Games({ loaderData }: Route.ComponentProps) {
     );
   }, [selectedDate]);
 
-  useEffect(() => {
-    const swiper = swiperRef.current;
+  const resetSlide = () => {
     if (!swiper) return;
     isSlideReset.current = true;
     swiper.slideTo(SLIDES_RANGE, 0);
     activeSlideIndex.current = SLIDES_RANGE;
     isSlideReset.current = false;
+  };
+
+  useEffect(() => {
+    resetSlide();
     if (loaderData.date.getAddedEpochSec() !== selectedDate.getAddedEpochSec()) {
       setSelectedDate(loaderData.date);
     }
@@ -92,25 +104,46 @@ export default function Games({ loaderData }: Route.ComponentProps) {
   const onSlideChange = (swiper: SwiperClass) => {
     const index = swiper.activeIndex;
     if (index === activeSlideIndex.current || isSlideReset.current) return;
-    const isNext = index > activeSlideIndex.current;
+    const newDate = new Date(selectedDate.getAddedDayjs(index > activeSlideIndex.current ? 1 : -1));
+    if (newDate.getAddedEpochSec() > endEpoch || newDate.getAddedEpochSec() < startEpoch) {
+      resetSlide();
+      return;
+    }
     scrollRefs.current.forEach((el, i) => {
       if (i !== index && el) {
         el.scrollTop = 0;
       }
     });
     activeSlideIndex.current = index;
-    setSelectedDate(new Date(selectedDate.getAddedDayjs(isNext ? 1 : -1)));
+    setSelectedDate(newDate);
   };
 
   // ----------------------------------------------------------------------
   // Views
   // ----------------------------------------------------------------------
+  const gameStatusSequense = {
+    [GameStatus.Live]: 0,
+    [GameStatus.Scheduled]: 1,
+    [GameStatus.Final]: 2,
+  };
   const gamesByDate = Array.from({ length: 2 * SLIDES_RANGE + 1 }, (_, i) => i - SLIDES_RANGE).map((i) => {
-    return games.filter((game) => {
-      const date = getDateFromQueryParameter(searchParams);
-      const epoc = game.startDatetime.unix();
-      return epoc >= date.getAddedEpochSec(i) && epoc < date.getAddedEpochSec(i + 1);
-    });
+    return games
+      .filter((game) => {
+        const date = getDateFromQueryParameter(searchParams);
+        const epoc = game.startDatetime.unix();
+        return epoc >= date.getAddedEpochSec(i) && epoc < date.getAddedEpochSec(i + 1);
+      })
+      .sort((a, b) => {
+        if (a.status !== b.status) {
+          return gameStatusSequense[a.status] - gameStatusSequense[b.status];
+        } else {
+          if (a.startDatetime.unix() !== b.startDatetime.unix()) {
+            return a.startDatetime.unix() - b.startDatetime.unix();
+          } else {
+            return a.gameId.localeCompare(b.gameId);
+          }
+        }
+      });
   });
 
   return (
@@ -123,7 +156,7 @@ export default function Games({ loaderData }: Route.ComponentProps) {
         slidesPerView={1}
         spaceBetween={0}
         initialSlide={activeSlideIndex.current}
-        onSwiper={(swiper) => (swiperRef.current = swiper)}
+        onSwiper={(swiper) => setSwiper(swiper)}
         onSlideChange={onSlideChange}
       >
         {gamesByDate.map((games, index) => {
@@ -145,6 +178,7 @@ export default function Games({ loaderData }: Route.ComponentProps) {
                 {games.map((game) => {
                   return <GameCard key={game.gameId} gameSummary={game} />;
                 })}
+                {games.length === 0 && <div style={{ padding: "2rem", fontSize: "3rem" }}>No Games</div>}
               </div>
             </SwiperSlide>
           );

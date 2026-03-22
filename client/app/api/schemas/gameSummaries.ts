@@ -13,6 +13,8 @@ export const IGameCategory = {
   RegularSeason: "Regular Season",
   Playoffs: "Playoffs",
   NBACup: "NBA Cup",
+  PlayInTournament: "Play-In Tournament",
+  AllStar: "All Star",
 } as const;
 
 export type IGameCategory = (typeof IGameStatus)[keyof typeof IGameStatus];
@@ -30,6 +32,7 @@ export interface IGameSummary {
   awayTeam: ITeam;
   homeTeamScore: number;
   awayTeamScore: number;
+  playoffLabel?: string;
 }
 
 /**
