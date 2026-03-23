@@ -103,7 +103,7 @@ describe("RegularSeasonTeams", () => {
   it("returns default if data is undefined", () => {
     const result = new RegularSeasonTeams(undefined);
 
-    expect(result.season).toBe("1970-71");
+    expect(result.season).toBe("1983-84");
     expect(result.teams).toEqual([]);
   });
 });

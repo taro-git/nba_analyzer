@@ -16,7 +16,7 @@ def _create_missing_seasons(season: Season) -> list[SeasonModel]:
     未登録の Season を作成します.
     """
     newest = get_newest_season()
-    newest_start_year = newest.start_year if newest else 1969
+    newest_start_year = newest.start_year if newest else 1982
     if newest_start_year >= season.start_year:
         return []
     return [SeasonModel(start_year=i) for i in range(newest_start_year + 1, season.start_year + 1)]

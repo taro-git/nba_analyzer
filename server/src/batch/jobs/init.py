@@ -18,7 +18,7 @@ def _init_jobs(scheduler: BlockingScheduler) -> None:
     システムの初期化ジョブで実行される処理を定義します.
     """
     try:
-        if season.start_year < 1970:
+        if season.start_year < 1983:
             logger.info("remove init_job")
             scheduler.get_job("init_job").remove()  # type: ignore
             return

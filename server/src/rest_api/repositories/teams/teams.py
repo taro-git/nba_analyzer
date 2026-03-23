@@ -4,7 +4,7 @@ from common.models.teams.teams import TeamProperty
 from rest_api.schemas.commons import Season
 
 
-def get_team_properties_by_ids(session: Session, season: Season, team_ids: list[int]) -> list[TeamProperty]:
+def get_team_properties_by_ids(session: Session, season: Season, team_ids: list[int] | set[int]) -> list[TeamProperty]:
     """
     チーム ID を指定してチーム情報を返します.
     """

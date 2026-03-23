@@ -14,12 +14,12 @@ def test_sync_seasons_newest_none(mocker: MockerFixture) -> None:
     )
     mock_add = mocker.patch("batch.services.commons.seasons.add_seasons")
 
-    season = Season.from_start_year(1972)
+    season = Season.from_start_year(1985)
 
     sync_seasons(season)
 
     passed = mock_add.call_args[0][0]
-    assert [s.start_year for s in passed] == [1970, 1971, 1972]
+    assert [s.start_year for s in passed] == [1983, 1984, 1985]
 
 
 def test_sync_seasons_add_missing(mocker: MockerFixture) -> None:

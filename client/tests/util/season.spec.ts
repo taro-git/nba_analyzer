@@ -23,7 +23,7 @@ describe("toSeason", () => {
     expect(() => toSeason("2023-25")).toThrow();
   });
 
-  it("throws if year is less than 1970", () => {
+  it("throws if year is less than 1983", () => {
     expect(() => toSeason("1969-70")).toThrow();
   });
 });
@@ -39,9 +39,9 @@ describe("generateSeasons", () => {
     expect(seasons).toEqual(["2023-24", "2022-23"]);
   });
 
-  it("default startYear is 1970", () => {
-    const seasons = generateSeasons(undefined, new Date("1971-10-01"));
-    expect(seasons).toEqual(["1971-72", "1970-71"]);
+  it("default startYear is 1983", () => {
+    const seasons = generateSeasons(undefined, new Date("1984-10-01"));
+    expect(seasons).toEqual(["1984-85", "1983-84"]);
   });
 
   it("returns empty array if startYear is greater than currentStartYear", () => {
@@ -49,8 +49,8 @@ describe("generateSeasons", () => {
     expect(seasons).toEqual([]);
   });
 
-  it("returns empty array if currentStartYear is less than 1970", () => {
-    const seasons = generateSeasons(undefined, new Date("1969-10-01"));
+  it("returns empty array if currentStartYear is less than 1983", () => {
+    const seasons = generateSeasons(undefined, new Date("1982-10-01"));
     expect(seasons).toEqual([]);
   });
 });

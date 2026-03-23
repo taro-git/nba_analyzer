@@ -66,8 +66,18 @@ def build_schedule(team_ids: list[int]) -> dict[str, Any]:
     for i, team_id in enumerate(team_ids):
         games.append(
             {
-                "awayTeam": {"teamId": team_id, "teamTricode": f"T{team_id:02d}"},
-                "homeTeam": {"teamId": team_ids[i - 1], "teamTricode": f"T{team_ids[i - 1]:02d}"},
+                "awayTeam": {
+                    "teamId": team_id,
+                    "teamTricode": f"T{team_id:02d}",
+                    "teamName": "name",
+                    "teamCity": "city",
+                },
+                "homeTeam": {
+                    "teamId": team_ids[i - 1],
+                    "teamTricode": f"T{team_ids[i - 1]:02d}",
+                    "teamName": "name",
+                    "teamCity": "city",
+                },
             }
         )
 
@@ -127,6 +137,20 @@ def test_sync_teams_normal(
     assert len(added) == expected_add_count
 
 
+def test_sync_teams_missing_standings(mocker: MockerFixture, season: Season) -> None:
+    mock_standings = build_standings([[1, "Team1", "West", "Pacific", "City"]])
+    mock_schedule = build_schedule([1, 2])
+
+    mocker_patch(mocker, [], [], mock_standings, mock_schedule)
+    add_mock = mocker.patch("batch.services.teams.teams.add_teams")
+
+    sync_teams_by_season(season)
+
+    add_mock.assert_called_once()
+    added = add_mock.call_args[0][0]
+    assert len(added) == 2
+
+
 def test_missing_standings_key_raises(mocker: MockerFixture, season: Season) -> None:
     mock_standings = {"invalid": "structure"}
     mock_schedule = build_schedule([1])
@@ -139,27 +163,7 @@ def test_missing_standings_key_raises(mocker: MockerFixture, season: Season) -> 
 
 def test_missing_schedule_key_raises(mocker: MockerFixture, season: Season) -> None:
     mock_standings = build_standings([[1, "Team1", "West", "Pacific", "City"]])
-    mock_schedule = {"invalid": "structure"}
-
-    mocker_patch(mocker, [], [], mock_standings, mock_schedule)
-
-    with pytest.raises(KeyError):
-        sync_teams_by_season(season)
-
-
-def test_team_in_standings_not_in_schedule_raises(mocker: MockerFixture, season: Season) -> None:
-    mock_standings = build_standings([[1, "Team1", "West", "Pacific", "City"]])
-    mock_schedule = build_schedule([])
-
-    mocker_patch(mocker, [], [], mock_standings, mock_schedule)
-
-    with pytest.raises(KeyError):
-        sync_teams_by_season(season)
-
-
-def test_empty_schedule_raises(mocker: MockerFixture, season: Season) -> None:
-    mock_standings = build_standings([[1, "Team1", "West", "Pacific", "City"]])
-    mock_schedule = build_schedule([])
+    mock_schedule = {"leagueSchedule": {"gameDates": [{"games": [{"invalid": "structure"}]}]}}
 
     mocker_patch(mocker, [], [], mock_standings, mock_schedule)
 

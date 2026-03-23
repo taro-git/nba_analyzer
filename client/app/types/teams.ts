@@ -3,11 +3,14 @@ import { toSeason } from "../util/season";
 import { Conferences, type Divisions } from "./leagueStructure";
 import { type Season } from "./season";
 
-export interface RegularSeasonTeam {
+export interface Team {
   teamId: number;
   teamName: string;
   teamTricode: string;
   teamLogo: string;
+}
+
+export interface RegularSeasonTeam extends Team {
   conference: Conferences;
   division: Divisions;
   rank: number;
@@ -26,7 +29,7 @@ export class RegularSeasonTeams {
   teams: RegularSeasonTeam[];
 
   constructor(data?: IRegularSeasonTeams) {
-    this.season = toSeason(data?.season ?? "1970-71");
+    this.season = toSeason(data?.season ?? "1983-84");
     const eastBestDiffWinLose =
       data?.teams
         .filter((team) => team.conference === Conferences.East)

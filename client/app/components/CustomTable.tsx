@@ -49,7 +49,6 @@ export default function CustomTable<Data>({
   return (
     <Box sx={{ height: "100%", width: "100%" }}>
       <AgGridReact<Data>
-        key={`${data}`}
         theme={gridTheme}
         ref={gridRef}
         rowData={data}

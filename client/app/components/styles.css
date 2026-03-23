@@ -4,3 +4,15 @@
 .ag-root-wrapper {
   border-radius: 0;
 }
+.ag-body-horizontal-scroll {
+  display: none;
+}
+
+.center-items {
+  display: grid !important;
+  place-items: center;
+}
+
+.swiper-wrapper {
+  align-items: center;
+}

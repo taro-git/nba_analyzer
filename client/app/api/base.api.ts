@@ -12,7 +12,7 @@ export abstract class BaseApi<
     : new URL("/api/", window.location.origin);
 
   private _path: string;
-  protected abstract Response: new (data: IRes) => Res;
+  protected abstract Response: (data: IRes) => Res;
   protected abstract resIsIRes(data: unknown): data is IRes;
 
   constructor(path?: string) {
@@ -20,8 +20,6 @@ export abstract class BaseApi<
   }
 
   protected buildUrl(): URL {
-    console.log(this._path);
-    console.log(BaseApi.BASE_URL);
     return new URL(this._path, BaseApi.BASE_URL);
   }
 
@@ -33,7 +31,14 @@ export abstract class BaseApi<
     this._path = path.replace(/^\/+/, "");
   }
 
-  private async get(queryParams?: QParams): Promise<Res | Res[]> {
+  /**
+   * GET リクエストを送信し、レスポンスデータを返します.
+   *
+   * @param {QParams} queryParams - クエリパラメータ.
+   * @returns {Promise<Res | Res[]>} - レスポンスデータ.
+   * @throws {Error} - レスポンスステータスが 200 以外のときエラーを投げます.
+   */
+  async get(queryParams?: QParams): Promise<Res> {
     const url = this.buildUrl();
 
     if (queryParams) {
@@ -48,47 +53,10 @@ export abstract class BaseApi<
     }
 
     const json = await response.json();
-
-    if (Array.isArray(json)) {
-      if (!json.every((item) => this.resIsIRes(item))) {
-        throw new Error("Response array is not valid IRes[]");
-      }
-      return json.map((item: IRes) => new this.Response(item));
-    }
     if (!this.resIsIRes(json)) {
       throw new Error("Response is not valid IRes");
     }
-    return new this.Response(json);
-  }
-
-  /**
-   * GET リクエストを送信し、単一オブジェクトのレスポンスデータを返します.
-   *
-   * @param {QParams} queryParams - クエリパラメータ.
-   * @returns {Promise<Res | Res[]>} - レスポンスデータ.
-   * @throws {Error} - レスポンスステータスが 200 以外のときエラーを投げます.
-   */
-  async getOne(queryParams?: QParams): Promise<Res> {
-    const res = await this.get(queryParams);
-    if (Array.isArray(res)) {
-      throw new Error("Response is array");
-    }
-    return res;
-  }
-
-  /**
-   * GET リクエストを送信し、配列のレスポンスデータを返します.
-   *
-   * @param {QParams} queryParams - クエリパラメータ.
-   * @returns {Promise<Res | Res[]>} - レスポンスデータ.
-   * @throws {Error} - レスポンスステータスが 200 以外のときエラーを投げます.
-   */
-  async getArray(queryParams?: QParams): Promise<Res[]> {
-    const res = await this.get(queryParams);
-    if (!Array.isArray(res)) {
-      throw new Error("Response is not array");
-    }
-    return res;
+    return this.Response(json);
   }
 
   /**

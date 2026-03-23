@@ -1,4 +1,3 @@
-# from sqlalchemy import Enum
 from sqlmodel import CheckConstraint, Column, Enum, Field, SQLModel
 
 from common.types import Conference, Division, enum_values
@@ -32,17 +31,17 @@ class TeamProperty(SQLModel, table=True):
     """チーム名"""
     team_tricode: str = Field(nullable=False, max_length=3)
     """チームの三文字コード"""
-    conference: Conference = Field(
+    conference: Conference | None = Field(
         sa_column=Column(
             Enum(Conference, values_callable=enum_values),
-            nullable=False,
+            nullable=True,
         )
     )
     """チームが所属するカンファレンス"""
-    division: Division = Field(
+    division: Division | None = Field(
         sa_column=Column(
             Enum(Division, values_callable=enum_values),
-            nullable=False,
+            nullable=True,
         )
     )
     """チームが所属するディビジョン"""
@@ -55,7 +54,9 @@ class TeamProperty(SQLModel, table=True):
         CheckConstraint(
             "(conference = 'East' AND division IN ('Atlantic','Central','SouthEast')) "
             "OR "
-            "(conference = 'West' AND division IN ('NorthWest','Pacific','SouthWest','MidWest'))",
+            "(conference = 'West' AND division IN ('NorthWest','Pacific','SouthWest','MidWest'))"
+            "OR "
+            "(conference IS NULL AND division IS NULL)",
             name="check_conference_division_match",
         ),
     )

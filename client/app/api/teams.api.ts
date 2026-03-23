@@ -4,7 +4,7 @@ import { BaseApi } from "./base.api";
 import { type IRegularSeasonTeams } from "./schemas/teams";
 
 export class RegularSeasonTeamsApi extends BaseApi<undefined, undefined, IRegularSeasonTeams, RegularSeasonTeams> {
-  protected Response = RegularSeasonTeams;
+  protected Response = (iRegularSeasonTeams: IRegularSeasonTeams) => new RegularSeasonTeams(iRegularSeasonTeams);
 
   protected resIsIRes(data: unknown): data is IRegularSeasonTeams {
     return (
