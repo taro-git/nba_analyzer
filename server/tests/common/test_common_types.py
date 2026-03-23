@@ -1,6 +1,6 @@
 import pytest
 
-from common.types import Conference, Division
+from common.types import Conference, Division, GameCategory, GameStatus
 
 
 @pytest.mark.parametrize(
@@ -89,3 +89,62 @@ def test_division_from_str_invalid(invalid_value: str) -> None:
         Division.from_str(invalid_value)
 
     assert "Invalid division_str" in str(exc_info.value)
+
+
+@pytest.mark.parametrize(
+    "value, expected",
+    [
+        ("0012500001", GameCategory.preseason),
+        ("0092500009", GameCategory.preseason),
+        ("0022500002", GameCategory.regular_season),
+        ("0032500003", GameCategory.all_star),
+        ("0042500004", GameCategory.playoffs),
+        ("0052500005", GameCategory.playin_tournament),
+        ("0062500006", GameCategory.nba_cup),
+    ],
+)
+def test_game_category_from_game_id_success(value: str, expected: GameCategory) -> None:
+    assert GameCategory.from_game_id(value) is expected
+
+
+@pytest.mark.parametrize(
+    "invalid_value",
+    [
+        "0072500007",
+        "0082500008",
+        "",
+        "invalid",
+        "00",
+    ],
+)
+def test_game_category_from_game_id_invalid(invalid_value: str) -> None:
+    with pytest.raises(ValueError) as exc_info:
+        GameCategory.from_game_id(invalid_value)
+
+    assert "Invalid game_id" in str(exc_info.value)
+
+
+@pytest.mark.parametrize(
+    "value, expected",
+    [
+        (1, GameStatus.scheduled),
+        (2, GameStatus.live),
+        (3, GameStatus.final),
+    ],
+)
+def test_game_status_from_status_id_success(value: int, expected: GameStatus) -> None:
+    assert GameStatus.from_status_id(value) is expected
+
+
+@pytest.mark.parametrize(
+    "invalid_value",
+    [
+        0,
+        4,
+    ],
+)
+def test_game_category_from_status_id_invalid(invalid_value: int) -> None:
+    with pytest.raises(ValueError) as exc_info:
+        GameStatus.from_status_id(invalid_value)
+
+    assert "Invalid status_id" in str(exc_info.value)

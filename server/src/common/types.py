@@ -71,18 +71,21 @@ class GameCategory(Enum):
 
     @classmethod
     def from_game_id(cls, game_id: str) -> "GameCategory":
-        if game_id[2] == "1" or game_id[2] == "9":
-            return cls.preseason
-        if game_id[2] == "2":
-            return cls.regular_season
-        if game_id[2] == "3":
-            return cls.all_star
-        if game_id[2] == "4":
-            return cls.playoffs
-        if game_id[2] == "5":
-            return cls.playin_tournament
-        if game_id[2] == "6":
-            return cls.nba_cup
+        try:
+            if game_id[2] == "1" or game_id[2] == "9":
+                return cls.preseason
+            if game_id[2] == "2":
+                return cls.regular_season
+            if game_id[2] == "3":
+                return cls.all_star
+            if game_id[2] == "4":
+                return cls.playoffs
+            if game_id[2] == "5":
+                return cls.playin_tournament
+            if game_id[2] == "6":
+                return cls.nba_cup
+        except Exception:
+            pass
         raise ValueError(f"Invalid game_id: {game_id}")
 
 

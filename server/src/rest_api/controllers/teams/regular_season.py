@@ -20,7 +20,7 @@ def get_regular_season_teams_by_season(session: Session, season: Season) -> list
 
     for standing in team_standings:
         team = team_infos_by_id.get(standing.team_id)
-        if team is None:
+        if team is None or team.conference is None or team.division is None:
             raise ValueError(f"Team id {standing.team_id} not found in teams info")
 
         result.append(

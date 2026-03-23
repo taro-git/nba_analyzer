@@ -32,7 +32,7 @@ def sync_games_by_season(season: Season | None = None) -> None:
         if season is None:
             season = Season.from_datetime(datetime.now())
         league_schedule = NbaApiGateway().fetch(ScheduleLeagueV2, season=season.season_str).get("leagueSchedule", {})
-        game_dates = league_schedule.get("gameDates", [])
+        game_dates = league_schedule.get("gameDates")
         games: list[Game] = []
         teams = get_teams()
         team_ids = [t.id for t in teams]
