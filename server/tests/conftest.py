@@ -4,7 +4,7 @@ import pytest
 from sqlalchemy import Engine
 from sqlmodel import Session, SQLModel, create_engine
 
-from common.models.commons.seasons import Season  # type: ignore # noqa: F401
+from common import models  # type: ignore # noqa: F401
 
 
 @pytest.fixture

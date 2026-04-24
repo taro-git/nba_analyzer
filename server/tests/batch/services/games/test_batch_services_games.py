@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Any
 
 import pytest
@@ -5,10 +6,16 @@ from nba_api.stats.endpoints.leaguegamefinder import LeagueGameFinder
 from nba_api.stats.endpoints.scheduleleaguev2 import ScheduleLeagueV2
 from pytest_mock import MockerFixture
 
-from batch.services.games.games import sync_games_by_season
+from batch.services.games.games import (
+    get_games_by_start_datetime,
+    get_no_stats_games_by_start_datetime,
+    sync_games_by_season,
+)
 from batch.types import Season
+from common.models.games.games import Game
+from common.models.games.stats import Stats
 from common.models.teams.teams import Team
-from common.types import GameCategory
+from common.types import GameCategory, GameStatus
 
 HOME_TEAM_ID = 1
 AWAY_TEAM_ID = 2
@@ -173,3 +180,86 @@ def test_sync_games_no_action_on_away_team_id_is_not_existing_in_db(mocker: Mock
     add_mock.assert_called_once()
     added = add_mock.call_args[0][0]
     assert len(added) == 0
+
+
+def _build_game(id: int, start_epoc_sec: int = 1767193200, status: GameStatus = GameStatus.final) -> Game:
+    return Game(
+        id=id,
+        game_id=f"00225{id}",
+        season=2025,
+        start_epoc_sec=start_epoc_sec,
+        elapsed_sec=0,
+        status=status,
+        category=GameCategory.regular_season,
+        home_team_id=HOME_TEAM_ID,
+        away_team_id=AWAY_TEAM_ID,
+        home_score=110,
+        away_score=105,
+        playoff_label=None,
+    )
+
+
+def _build_stats(game_id: int) -> Stats:
+    return Stats(
+        game_id=game_id,
+        game_player_id=0,
+        elapsed_ms=0,
+        ms=0,
+        points=0,
+        offence_rebounds=0,
+        diffence_rebounds=0,
+        assists=0,
+        steals=0,
+        blocks=0,
+        field_goal_attempts=0,
+        field_goal_made=0,
+        three_point_attempts=0,
+        three_point_made=0,
+        free_throw_attempts=0,
+        free_throw_made=0,
+        turnovers=0,
+        personal_fouls=0,
+        plus_minus=0,
+    )
+
+
+def test_get_games_by_start_datetime_returns_expected(mocker: MockerFixture) -> None:
+    start_epoc = 1767193200
+    status = GameStatus.final
+    expected = [_build_game(1, start_epoc_sec=start_epoc, status=status)]
+    add_mock = mocker.patch("batch.services.games.games.get_games_by_start_datetime_from_db", return_value=expected)
+
+    result = get_games_by_start_datetime(datetime.fromtimestamp(start_epoc), datetime.fromtimestamp(start_epoc), status)
+
+    add_mock.assert_called_once()
+    assert {g.game_id for g in result} == {g.game_id for g in expected}
+
+
+@pytest.mark.parametrize(
+    "game_ids, game_ids_of_stats, expected_game_ids",
+    [
+        ([], [], {}),
+        ([1], [1], {}),
+        ([1], [], {1}),
+        ([1, 2, 3], [1, 2, 3], {}),
+        ([1, 2, 3], [], {1, 2, 3}),
+        ([1, 2, 3], [2], {1, 3}),
+    ],
+)
+def test_get_no_stats_games_by_start_datetime_returns_matched(
+    mocker: MockerFixture, game_ids: list[int], game_ids_of_stats: list[int], expected_game_ids: set[int]
+) -> None:
+    game_mock = mocker.patch(
+        "batch.services.games.games.get_games_by_start_datetime_from_db",
+        return_value=[_build_game(id) for id in game_ids],
+    )
+    stats_mock = mocker.patch(
+        "batch.services.games.games.get_all_stats_list", return_value=[_build_stats(id) for id in game_ids_of_stats]
+    )
+    result = get_no_stats_games_by_start_datetime(
+        datetime.fromtimestamp(1767193200), datetime.fromtimestamp(1767193200), GameStatus.final
+    )
+
+    game_mock.assert_called_once()
+    stats_mock.assert_called_once()
+    assert {g.id for g in result} == set(expected_game_ids)

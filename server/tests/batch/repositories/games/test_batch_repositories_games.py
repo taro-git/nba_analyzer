@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import TypedDict
 
 import pytest
@@ -6,7 +7,7 @@ from sqlalchemy import Engine
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, col, select
 
-from batch.repositories.games.games import upsert_games
+from batch.repositories.games.games import get_game_by_game_id, get_games_by_start_datetime, upsert_games
 from common.models.games.games import Game
 from common.types import GameCategory, GameStatus
 
@@ -47,6 +48,50 @@ def _create_game(
 @pytest.fixture
 def mock_engine(engine: Engine, mocker: MockerFixture) -> None:
     mocker.patch("batch.repositories.games.games.engine", engine)
+
+
+def test_get_games_by_start_datetime_return_matched(
+    mock_engine: None, seed_games: dict[str, Game], session: Session
+) -> None:
+    min_epoc = min({g.start_epoc_sec for g in seed_games.values()})
+    max_epoc = max({g.start_epoc_sec for g in seed_games.values()})
+    for status in {g.status for g in seed_games.values()}:
+        result = get_games_by_start_datetime(datetime.fromtimestamp(min_epoc), datetime.fromtimestamp(max_epoc), status)
+        assert {g.game_id for g in result} == {g.game_id for g in seed_games.values() if g.status == status}
+
+
+def test_get_games_by_start_datetime_return_empty_if_not_matched(
+    mock_engine: None, seed_games: dict[str, Game], session: Session
+) -> None:
+    max_epoc = max({g.start_epoc_sec for g in seed_games.values()})
+    for status in {g.status for g in seed_games.values()}:
+        result = get_games_by_start_datetime(
+            datetime.fromtimestamp(max_epoc + 1), datetime.fromtimestamp(max_epoc + 2), status
+        )
+        assert len(result) == 0
+
+
+def test_get_games_by_start_datetime_return_empty_if_from_is_later_than_to(
+    mock_engine: None, seed_games: dict[str, Game], session: Session
+) -> None:
+    min_epoc = min({g.start_epoc_sec for g in seed_games.values()})
+    max_epoc = max({g.start_epoc_sec for g in seed_games.values()})
+    for status in {g.status for g in seed_games.values()}:
+        result = get_games_by_start_datetime(
+            datetime.fromtimestamp(max_epoc + 1), datetime.fromtimestamp(min_epoc - 1), status
+        )
+        assert len(result) == 0
+
+
+def test_get_game_by_game_id_return_matched(mock_engine: None, seed_game: Game, session: Session) -> None:
+    result = get_game_by_game_id(seed_game.game_id)
+    assert result is not None
+    assert result.game_id == seed_game.game_id
+
+
+def test_get_game_by_game_id_return_empty_if_not_matched(mock_engine: None, seed_game: Game, session: Session) -> None:
+    result = get_game_by_game_id("not_matched")
+    assert result is None
 
 
 def test_upsert_games_add_one(mock_engine: None, seed_games: dict[str, Game], session: Session) -> None:
