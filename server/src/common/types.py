@@ -103,3 +103,25 @@ class GameStatus(Enum):
         if status_id == 3:
             return cls.final
         raise ValueError(f"Invalid status_id: {status_id}")
+
+
+class PlayerPosition(Enum):
+    point_guard = "PG"
+    shooting_guard = "SG"
+    small_forward = "SF"
+    power_forward = "PF"
+    center = "C"
+
+    @classmethod
+    def from_endpoints(cls, position: str | None) -> "PlayerPosition | None":
+        if position == "PG" or position == "G":
+            return cls.point_guard
+        if position == "SG":
+            return cls.shooting_guard
+        if position == "SF" or position == "F":
+            return cls.small_forward
+        if position == "PF":
+            return cls.power_forward
+        if position == "C":
+            return cls.center
+        return None
