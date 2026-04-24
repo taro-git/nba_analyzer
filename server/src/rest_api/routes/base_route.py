@@ -1,10 +1,12 @@
 from fastapi import APIRouter
 
+from rest_api.routes.games.game_detail import game_detail_router
 from rest_api.routes.games.game_summaries import game_summaries_router
 from rest_api.routes.teams.regular_season import regular_season_teams_router
 
 api_router = APIRouter(prefix="/api")
 api_router.include_router(game_summaries_router)
+api_router.include_router(game_detail_router)
 api_router.include_router(regular_season_teams_router)
 
 
