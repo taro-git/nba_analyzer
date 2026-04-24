@@ -4,7 +4,7 @@ from zoneinfo import ZoneInfo
 from sqlmodel import Session
 
 from common.models.games.games import Game
-from rest_api.repositories.games.games import get_games_by_start_datetime
+from rest_api.repositories.games.games import get_game_by_game_id, get_games_by_start_datetime
 
 
 def test_get_games_by_start_datetime_returns_matched_team(session: Session, seed_games: dict[str, Game]) -> None:
@@ -62,3 +62,15 @@ def test_get_games_by_start_datetime_returns_empty_list_if_from_is_larger_than_t
     to_datetime = datetime(2025, 9, 1, tzinfo=timezone.utc)
     result_ids = [g.game_id for g in get_games_by_start_datetime(session, from_datetime, to_datetime)]
     assert result_ids == []
+
+
+def test_get_game_by_game_id_returns_game(session: Session, seed_games: dict[str, Game]) -> None:
+    game_id = list(seed_games.keys())[0]
+    result = get_game_by_game_id(session, game_id)
+    assert result is not None and result.game_id == game_id
+
+
+def test_get_game_by_game_id_returns_none_if_not_found(session: Session, seed_games: dict[str, Game]) -> None:
+    game_id = "not_found"
+    result = get_game_by_game_id(session, game_id)
+    assert result is None
