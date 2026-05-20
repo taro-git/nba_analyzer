@@ -1,0 +1,36 @@
+export const NBA_REGULATION_PERIOD_SECONDS = 12 * 60;
+export const NBA_ORVERTIME_SECONDS = 5 * 60;
+
+// TODO: DB側に移す
+export const TEAM_COLOR: Record<string, string> = {
+  ATL: "#e03a3d",
+  BKN: "#000000",
+  BOS: "#008348",
+  CHA: "#00788c",
+  CHI: "#ce1141",
+  CLE: "#860038",
+  DAL: "#0053bc",
+  DEN: "#0e2240",
+  DET: "#1d428a",
+  GSW: "#1d428a",
+  HOU: "#ce1141",
+  IND: "#002d62",
+  LAC: "#12173f",
+  LAL: "#552583",
+  MEM: "#5d76a9",
+  MIA: "#98002e",
+  MIL: "#00471b",
+  MIN: "#0c2340",
+  NOP: "#002b5c",
+  NYK: "#1d428a",
+  OKC: "#007ac1",
+  ORL: "#0050b5",
+  PHI: "#006bb6",
+  PHX: "#1d1160",
+  POR: "#e03a3e",
+  SAC: "#5a2d81",
+  SAS: "#000000",
+  TOR: "#000000",
+  UTA: "#4e008e",
+  WAS: "#002b5c",
+};

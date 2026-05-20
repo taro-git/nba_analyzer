@@ -15,6 +15,9 @@ dayjs.extend(utc);
 type Props = {
   gameSummary: GameSummary;
   showScore?: boolean;
+  homeScore?: number;
+  awayScore?: number;
+  inactive?: boolean;
 };
 
 /**
@@ -40,7 +43,13 @@ function Score({ value }: { value: number }) {
   );
 }
 
-export default function GameCard({ gameSummary, showScore = true }: Props) {
+export default function GameCard({
+  gameSummary,
+  showScore = true,
+  homeScore = undefined,
+  awayScore = undefined,
+  inactive = false,
+}: Props) {
   const { systemMode } = useColorScheme();
 
   const palette = useMemo(() => {
@@ -82,15 +91,12 @@ export default function GameCard({ gameSummary, showScore = true }: Props) {
   return (
     <Paper
       component={Link}
-      to={`/${BASE_URL}/games/${gameSummary.gameId}`}
+      to={inactive ? "" : `/${BASE_URL}/games/${gameSummary.gameId}`}
       sx={{
         width: "85%",
         height: "9rem",
         borderRadius: 2,
-        bgcolor: palette?.getContrastText("monotone"),
-        "&:hover": {
-          bgcolor: palette?.getContrastText(""),
-        },
+        bgcolor: inactive ? palette?.getContrastText("") : palette?.getContrastText("monotone"),
         my: "1rem",
         mx: "1.5rem",
         p: "0.5rem",
@@ -105,9 +111,9 @@ export default function GameCard({ gameSummary, showScore = true }: Props) {
       </Typography>
       <Box display="flex" alignItems="center" justifyContent="space-between" px="0rem">
         <TeamBlock team={gameSummary.awayTeam} />
-        {showScore && <Score value={gameSummary.awayTeamScore} />}
+        {showScore && <Score value={awayScore ?? gameSummary.awayTeamScore} />}
         <Typography fontSize="1.8rem">-</Typography>
-        {showScore && <Score value={gameSummary.homeTeamScore} />}
+        {showScore && <Score value={homeScore ?? gameSummary.homeTeamScore} />}
         <TeamBlock team={gameSummary.homeTeam} />
       </Box>
     </Paper>

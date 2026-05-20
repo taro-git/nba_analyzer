@@ -1,7 +1,6 @@
 import dayjs from "dayjs";
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router";
-import "swiper/css";
 import { Swiper, type SwiperClass, SwiperSlide } from "swiper/react";
 
 import { gameSummariesApi } from "../api/gameSummaries.api";
