@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { IGameCategory, IGameStatus } from "../../app/api/schemas/gameSummaries";
+import { IPosition } from "../../app/api/schemas/players";
 import { GameDetail, Periods } from "../../app/types/gameDetail";
 
 describe("GameDetail", () => {
@@ -47,7 +48,7 @@ describe("GameDetail", () => {
     teamId: isHome ? 1 : 2,
     fullName: `Player ${playerId}`,
     abbreviation: `P${playerId}`,
-    position: "G",
+    position: IPosition.PointGuard,
     dateOfBirth: "2000-01-01",
     draftYear: 2020,
     jearsyNum: `${playerId}`,
@@ -67,7 +68,7 @@ describe("GameDetail", () => {
     awayTeam: awayTeam,
     homeTeamScore: 100,
     awayTeamScore: 95,
-    playoffLabel: null,
+    playoffLabel: undefined,
     playByPlay: [
       {
         actionNumber: 1,
@@ -307,6 +308,162 @@ describe("GameDetail", () => {
 
     // 2 active players + 1 team = 3 rows
     expect(tableData).toHaveLength(3);
+  });
+
+  describe("Empty stats data handling", () => {
+    it("should handle empty homeTeamStats.statics", () => {
+      const gameDetailData = {
+        gameId: "0012300001",
+        status: IGameStatus.Final,
+        category: IGameCategory.RegularSeason,
+        startDatetime: "2023-10-24T19:00:00Z",
+        elapsedSec: 2880,
+        homeTeam: validTeam,
+        awayTeam: awayTeam,
+        homeTeamScore: 0,
+        awayTeamScore: 0,
+        playoffLabel: undefined,
+        playByPlay: [],
+        homeTeamStats: {
+          statics: [], // Empty stats
+          players: [],
+        },
+        awayTeamStats: {
+          statics: [],
+          players: [],
+        },
+      };
+
+      const gameDetail = new GameDetail(gameDetailData);
+
+      expect(gameDetail.hasStatsData).toBe(false);
+      expect(gameDetail.elapsedMilliSecounds).toEqual([]);
+      expect(gameDetail.stats).toEqual({});
+      expect(gameDetail.homePlayers).toEqual({});
+      expect(gameDetail.awayPlayers).toEqual({});
+    });
+
+    it("should handle empty awayTeamStats.statics", () => {
+      const gameDetailData = {
+        gameId: "0012300001",
+        status: IGameStatus.Final,
+        category: IGameCategory.RegularSeason,
+        startDatetime: "2023-10-24T19:00:00Z",
+        elapsedSec: 2880,
+        homeTeam: validTeam,
+        awayTeam: awayTeam,
+        homeTeamScore: 0,
+        awayTeamScore: 0,
+        playoffLabel: undefined,
+        playByPlay: [],
+        homeTeamStats: {
+          statics: [],
+          players: [],
+        },
+        awayTeamStats: {
+          statics: [],
+          players: [],
+        },
+      };
+
+      const gameDetail = new GameDetail(gameDetailData);
+
+      expect(gameDetail.hasStatsData).toBe(false);
+      expect(gameDetail.elapsedMilliSecounds).toEqual([]);
+      expect(gameDetail.stats).toEqual({});
+      expect(gameDetail.homePlayers).toEqual({});
+      expect(gameDetail.awayPlayers).toEqual({});
+    });
+
+    it("should handle both empty stats", () => {
+      const gameDetailData = {
+        gameId: "0012300001",
+        status: IGameStatus.Final,
+        category: IGameCategory.RegularSeason,
+        startDatetime: "2023-10-24T19:00:00Z",
+        elapsedSec: 2880,
+        homeTeam: validTeam,
+        awayTeam: awayTeam,
+        homeTeamScore: 0,
+        awayTeamScore: 0,
+        playoffLabel: undefined,
+        playByPlay: [],
+        homeTeamStats: {
+          statics: [], // Empty stats
+          players: [],
+        },
+        awayTeamStats: {
+          statics: [], // Empty stats
+          players: [],
+        },
+      };
+
+      const gameDetail = new GameDetail(gameDetailData);
+
+      expect(gameDetail.hasStatsData).toBe(false);
+      expect(gameDetail.elapsedMilliSecounds).toEqual([]);
+      expect(gameDetail.stats).toEqual({});
+      expect(gameDetail.homePlayers).toEqual({});
+      expect(gameDetail.awayPlayers).toEqual({});
+    });
+
+    it("should return empty array from homeTableData when no stats data", () => {
+      const gameDetailData = {
+        gameId: "0012300001",
+        status: IGameStatus.Final,
+        category: IGameCategory.RegularSeason,
+        startDatetime: "2023-10-24T19:00:00Z",
+        elapsedSec: 2880,
+        homeTeam: validTeam,
+        awayTeam: awayTeam,
+        homeTeamScore: 0,
+        awayTeamScore: 0,
+        playoffLabel: undefined,
+        playByPlay: [],
+        homeTeamStats: {
+          statics: [],
+          players: [],
+        },
+        awayTeamStats: {
+          statics: [],
+          players: [],
+        },
+      };
+
+      const gameDetail = new GameDetail(gameDetailData);
+      const result = gameDetail.homeTableData(0, 1000);
+
+      expect(result).toEqual([]);
+    });
+
+    it("should return empty array from awayTableData when no stats data", () => {
+      const gameDetailData = {
+        gameId: "0012300001",
+        status: IGameStatus.Final,
+        category: IGameCategory.RegularSeason,
+        startDatetime: "2023-10-24T19:00:00Z",
+        elapsedSec: 2880,
+        homeTeam: validTeam,
+        awayTeam: awayTeam,
+        homeTeamScore: 0,
+        awayTeamScore: 0,
+        playoffLabel: undefined,
+        playByPlay: [],
+        homeTeamStats: {
+          statics: [],
+          players: [],
+        },
+        awayTeamStats: {
+          statics: [],
+          players: [],
+        },
+      };
+
+      const gameDetail = new GameDetail(gameDetailData);
+      const result = gameDetail.awayTableData(0, 1000);
+
+      expect(result).toEqual([]);
+    });
   });
 });
 

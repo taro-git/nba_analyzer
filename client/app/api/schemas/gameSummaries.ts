@@ -17,7 +17,7 @@ export const IGameCategory = {
   AllStar: "All Star",
 } as const;
 
-export type IGameCategory = (typeof IGameStatus)[keyof typeof IGameStatus];
+export type IGameCategory = (typeof IGameCategory)[keyof typeof IGameCategory];
 
 /**
  * API から受け取るゲームサマリーを表す schema です.

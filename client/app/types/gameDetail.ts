@@ -54,6 +54,7 @@ export class GameDetail extends GameSummary {
   homePlayers: Record<PlayerId, GamePlayer>;
   awayPlayers: Record<PlayerId, GamePlayer>;
   stats: Record<PlayerId | TeamId, Record<ElapseMs, Statics>>;
+  hasStatsData: boolean;
 
   private convertFromBooleanToNumber(value: boolean): number {
     return value ? 1 : 0;
@@ -62,6 +63,20 @@ export class GameDetail extends GameSummary {
   constructor(data: IGameDetail) {
     super(data);
     this.playByPlay = data.playByPlay;
+
+    // Check if stats data exists
+    this.hasStatsData = data.homeTeamStats.statics.length > 0 && data.awayTeamStats.statics.length > 0;
+
+    if (!this.hasStatsData) {
+      // Initialize with empty data when stats are not available
+      this.elapsedMilliSecounds = [];
+      this.homeTeam = data.homeTeam;
+      this.awayTeam = data.awayTeam;
+      this.homePlayers = {};
+      this.awayPlayers = {};
+      this.stats = {};
+      return;
+    }
 
     const homeElapsedMsSet = new Set(data.homeTeamStats.statics.map((statics) => statics.elapsedMs));
     this.elapsedMilliSecounds = [
@@ -226,6 +241,9 @@ export class GameDetail extends GameSummary {
    * 試合経過時間の範囲を指定してホームチームのテーブルデータ一覧を返します.
    */
   homeTableData(fromElapsedMs: number, toElapsedMs: number): TableData[] {
+    if (!this.hasStatsData) {
+      return [];
+    }
     const playerIds = Object.values(this.homePlayers)
       .filter((p) => p.isActive)
       .sort((a, b) => this.convertFromBooleanToNumber(b.isStarter) - this.convertFromBooleanToNumber(a.isStarter))
@@ -238,6 +256,9 @@ export class GameDetail extends GameSummary {
    * 試合経過時間の範囲を指定してアウェイチームのテーブルデータ一覧を返します.
    */
   awayTableData(fromElapsedMs: number, toElapsedMs: number): TableData[] {
+    if (!this.hasStatsData) {
+      return [];
+    }
     const playerIds = Object.values(this.awayPlayers)
       .filter((p) => p.isActive)
       .sort((a, b) => this.convertFromBooleanToNumber(b.isStarter) - this.convertFromBooleanToNumber(a.isStarter))
