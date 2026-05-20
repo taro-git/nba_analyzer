@@ -39,6 +39,7 @@ export interface IGameSummary {
  * GET リクエストのクエリパラメータを表す schema です.
  */
 export type GameSummariesQuery = {
-  from_utc: string;
+  from_utc?: string;
   to_utc?: string;
+  team_ids?: number[];
 };
