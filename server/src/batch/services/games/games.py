@@ -5,12 +5,15 @@ from nba_api.stats.endpoints.leaguegamefinder import LeagueGameFinder
 from nba_api.stats.endpoints.scheduleleaguev2 import ScheduleLeagueV2
 
 from batch.repositories.games.games import (
-    get_games_by_start_datetime as get_games_by_start_datetime_from_db,
-)
-from batch.repositories.games.games import (
+    get_games_by_season,
+    remove_games,
     upsert_games,
 )
-from batch.repositories.games.stats import get_all_stats_list
+from batch.repositories.games.games import (
+    get_games_by_start_datetime as get_games_by_start_datetime_from_db,
+)
+from batch.repositories.games.stats import get_all_game_ids as get_all_game_ids_of_stats
+from batch.repositories.games.game_actions import get_all_game_ids as get_all_game_ids_of_actions
 from batch.repositories.teams.teams import get_teams
 from batch.services.nba_api.gateway import NbaApiGateway
 from batch.types import Season
@@ -74,9 +77,9 @@ def sync_games_by_season(season: Season | None = None) -> None:
                 except Exception:
                     logger.error(f"error in sync_games_by_season: {game.get('gameId', 'cannot get game id')}")
         upsert_games(games)
+        remove_games([g for g in get_games_by_season(season) if g.game_id not in {g.game_id for g in games}])
     except Exception as e:
         logger.error(f"error in sync_games_by_season: {e}")
-        raise
         raise
 
 
@@ -87,12 +90,13 @@ def get_games_by_start_datetime(from_datetime: datetime, to_datetime: datetime, 
     return get_games_by_start_datetime_from_db(from_datetime, to_datetime, status)
 
 
-def get_no_stats_games_by_start_datetime(
+def get_unninitialized_games_by_start_datetime(
     from_datetime: datetime, to_datetime: datetime, status: GameStatus
 ) -> list[Game]:
     """
     試合開始時刻の範囲と試合ステータスを指定して Game 一覧を返します.
     """
     all_games = get_games_by_start_datetime_from_db(from_datetime, to_datetime, status)
-    all_stats = {s.game_id for s in get_all_stats_list()}
-    return [g for g in all_games if g.id not in all_stats]
+    all_stats = {s for s in get_all_game_ids_of_stats()}
+    all_actions = {a for a in get_all_game_ids_of_actions()}
+    return [g for g in all_games if g.id not in all_stats or g.id not in all_actions]

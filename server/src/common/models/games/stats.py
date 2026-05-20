@@ -1,4 +1,4 @@
-from sqlmodel import CheckConstraint, Field, SQLModel
+from sqlmodel import CheckConstraint, Field, SQLModel, UniqueConstraint
 
 
 class Stats(SQLModel, table=True):
@@ -60,6 +60,18 @@ class Stats(SQLModel, table=True):
     """出場中のチーム全体の得失点差"""
 
     __table_args__ = (
+        UniqueConstraint(
+            "game_id",
+            "game_player_id",
+            "elapsed_ms",
+            name="unique_game_id_and_game_player_id_and_elapsed_ms_constraint",
+        ),
+        UniqueConstraint(
+            "game_id",
+            "team_id",
+            "elapsed_ms",
+            name="unique_game_id_and_team_id_and_elapsed_ms_constraint",
+        ),
         CheckConstraint(
             "(game_player_id IS NOT NULL AND team_id IS NULL)OR (game_player_id IS NULL OR team_id IS NOT NULL)",
             name="check_game_player_id_and_team_id_constraint",

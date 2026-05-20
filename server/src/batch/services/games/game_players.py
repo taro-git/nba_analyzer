@@ -39,9 +39,11 @@ def _create_game_players_from_stats_endpoint(game: Game) -> list[GamePlayer]:
             game_id=game.id,
             player_id=player["personId"],
             jearsy_num=player["jerseyNum"],
-            position=player_props_from_boxscore_traditional_v3[player["personId"]]["position"],
+            position=player_props_from_boxscore_traditional_v3.get(player["personId"], {"position": None})["position"],
             is_home=team_key == "homeTeam",
-            is_starter=player_props_from_boxscore_traditional_v3[player["personId"]]["is_starter"],
+            is_starter=player_props_from_boxscore_traditional_v3.get(player["personId"], {"is_starter": False})[
+                "is_starter"
+            ],
             is_active=player_key == "players",
         )
         for team_key in ["homeTeam", "awayTeam"]

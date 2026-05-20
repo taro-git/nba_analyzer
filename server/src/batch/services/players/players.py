@@ -27,7 +27,7 @@ def _create_players_from_stats_endpoint(game: Game) -> list[Player]:
             id=player["personId"],
             updated_at=epoch,
             full_name=f"{player['firstName']} {player['familyName']}",
-            abbreviation=f"{player['firstName'][0]}. {player['familyName'][0]}",
+            abbreviation=f"{player['firstName'][0]}. {player['familyName']}",
         )
         for team_key in ["homeTeam", "awayTeam"]
         for player_key in ["players", "inactives"]

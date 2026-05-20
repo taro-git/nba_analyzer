@@ -8,7 +8,7 @@ from nba_api.stats.endpoints import BoxScoreTraditionalV3
 
 from batch.repositories.games.game_players import get_game_players_by_game_id
 from batch.repositories.games.games import get_game_by_game_id
-from batch.repositories.games.stats import add_stats_list
+from batch.repositories.games.stats import upsert_stats_list
 from batch.services.commons.game_clock import (
     convert_from_clock_str_to_seconds,
     convert_from_playtime_str_to_ms,
@@ -301,59 +301,73 @@ def _create_game_stats_from_stats_endpoint(game: Game) -> list[Stats]:
     game_players: dict[int, int] = {
         p.player_id: p.id for p in get_game_players_by_game_id(game.id) if p.id is not None and p.is_active
     }
-    return [
-        Stats(
-            game_id=game.id,
-            game_player_id=game_players[id],
-            elapsed_ms=elapsed_ms,
-            ms=convert_from_clock_str_to_seconds(box_score_traditional_v3_players[id]["minutes"]) * 1000,
-            points=box_score_traditional_v3_players[id]["points"],
-            offence_rebounds=box_score_traditional_v3_players[id]["reboundsOffensive"],
-            diffence_rebounds=box_score_traditional_v3_players[id]["reboundsDefensive"],
-            assists=box_score_traditional_v3_players[id]["assists"],
-            steals=box_score_traditional_v3_players[id]["steals"],
-            blocks=box_score_traditional_v3_players[id]["blocks"],
-            field_goal_attempts=box_score_traditional_v3_players[id]["fieldGoalsAttempted"],
-            field_goal_made=box_score_traditional_v3_players[id]["fieldGoalsMade"],
-            three_point_attempts=box_score_traditional_v3_players[id]["threePointersAttempted"],
-            three_point_made=box_score_traditional_v3_players[id]["threePointersMade"],
-            free_throw_attempts=box_score_traditional_v3_players[id]["freeThrowsAttempted"],
-            free_throw_made=box_score_traditional_v3_players[id]["freeThrowsMade"],
-            turnovers=box_score_traditional_v3_players[id]["turnovers"],
-            personal_fouls=box_score_traditional_v3_players[id]["foulsPersonal"],
-            plus_minus=int(box_score_traditional_v3_players[id]["plusMinusPoints"]),
-        )
-        for id in game_players.keys()
-    ] + [
-        Stats(
-            game_id=game.id,
-            team_id=box_score_traditional_v3["boxScoreTraditional"][key]["teamId"],
-            elapsed_ms=elapsed_ms,
-            ms=elapsed_ms,
-            points=box_score_traditional_v3["boxScoreTraditional"][key]["statistics"]["points"],
-            offence_rebounds=box_score_traditional_v3["boxScoreTraditional"][key]["statistics"]["reboundsOffensive"],
-            diffence_rebounds=box_score_traditional_v3["boxScoreTraditional"][key]["statistics"]["reboundsDefensive"],
-            assists=box_score_traditional_v3["boxScoreTraditional"][key]["statistics"]["assists"],
-            steals=box_score_traditional_v3["boxScoreTraditional"][key]["statistics"]["steals"],
-            blocks=box_score_traditional_v3["boxScoreTraditional"][key]["statistics"]["blocks"],
-            field_goal_attempts=box_score_traditional_v3["boxScoreTraditional"][key]["statistics"][
-                "fieldGoalsAttempted"
-            ],
-            field_goal_made=box_score_traditional_v3["boxScoreTraditional"][key]["statistics"]["fieldGoalsMade"],
-            three_point_attempts=box_score_traditional_v3["boxScoreTraditional"][key]["statistics"][
-                "threePointersAttempted"
-            ],
-            three_point_made=box_score_traditional_v3["boxScoreTraditional"][key]["statistics"]["threePointersMade"],
-            free_throw_attempts=box_score_traditional_v3["boxScoreTraditional"][key]["statistics"][
-                "freeThrowsAttempted"
-            ],
-            free_throw_made=box_score_traditional_v3["boxScoreTraditional"][key]["statistics"]["freeThrowsMade"],
-            turnovers=box_score_traditional_v3["boxScoreTraditional"][key]["statistics"]["turnovers"],
-            personal_fouls=box_score_traditional_v3["boxScoreTraditional"][key]["statistics"]["foulsPersonal"],
-            plus_minus=int(box_score_traditional_v3["boxScoreTraditional"][key]["statistics"]["plusMinusPoints"]),
-        )
-        for key in team_keys
-    ]
+    return (
+        [_init_stats(game.id, game_player_id=game_players[id]) for id in game_players.keys()]
+        + [
+            Stats(
+                game_id=game.id,
+                game_player_id=game_players[id],
+                elapsed_ms=elapsed_ms,
+                ms=convert_from_clock_str_to_seconds(box_score_traditional_v3_players[id]["minutes"]) * 1000,
+                points=box_score_traditional_v3_players[id]["points"],
+                offence_rebounds=box_score_traditional_v3_players[id]["reboundsOffensive"],
+                diffence_rebounds=box_score_traditional_v3_players[id]["reboundsDefensive"],
+                assists=box_score_traditional_v3_players[id]["assists"],
+                steals=box_score_traditional_v3_players[id]["steals"],
+                blocks=box_score_traditional_v3_players[id]["blocks"],
+                field_goal_attempts=box_score_traditional_v3_players[id]["fieldGoalsAttempted"],
+                field_goal_made=box_score_traditional_v3_players[id]["fieldGoalsMade"],
+                three_point_attempts=box_score_traditional_v3_players[id]["threePointersAttempted"],
+                three_point_made=box_score_traditional_v3_players[id]["threePointersMade"],
+                free_throw_attempts=box_score_traditional_v3_players[id]["freeThrowsAttempted"],
+                free_throw_made=box_score_traditional_v3_players[id]["freeThrowsMade"],
+                turnovers=box_score_traditional_v3_players[id]["turnovers"],
+                personal_fouls=box_score_traditional_v3_players[id]["foulsPersonal"],
+                plus_minus=int(box_score_traditional_v3_players[id]["plusMinusPoints"]),
+            )
+            for id in game_players.keys()
+        ]
+        + [
+            _init_stats(game.id, team_id=box_score_traditional_v3["boxScoreTraditional"][key]["teamId"])
+            for key in team_keys
+        ]
+        + [
+            Stats(
+                game_id=game.id,
+                team_id=box_score_traditional_v3["boxScoreTraditional"][key]["teamId"],
+                elapsed_ms=elapsed_ms,
+                ms=elapsed_ms,
+                points=box_score_traditional_v3["boxScoreTraditional"][key]["statistics"]["points"],
+                offence_rebounds=box_score_traditional_v3["boxScoreTraditional"][key]["statistics"][
+                    "reboundsOffensive"
+                ],
+                diffence_rebounds=box_score_traditional_v3["boxScoreTraditional"][key]["statistics"][
+                    "reboundsDefensive"
+                ],
+                assists=box_score_traditional_v3["boxScoreTraditional"][key]["statistics"]["assists"],
+                steals=box_score_traditional_v3["boxScoreTraditional"][key]["statistics"]["steals"],
+                blocks=box_score_traditional_v3["boxScoreTraditional"][key]["statistics"]["blocks"],
+                field_goal_attempts=box_score_traditional_v3["boxScoreTraditional"][key]["statistics"][
+                    "fieldGoalsAttempted"
+                ],
+                field_goal_made=box_score_traditional_v3["boxScoreTraditional"][key]["statistics"]["fieldGoalsMade"],
+                three_point_attempts=box_score_traditional_v3["boxScoreTraditional"][key]["statistics"][
+                    "threePointersAttempted"
+                ],
+                three_point_made=box_score_traditional_v3["boxScoreTraditional"][key]["statistics"][
+                    "threePointersMade"
+                ],
+                free_throw_attempts=box_score_traditional_v3["boxScoreTraditional"][key]["statistics"][
+                    "freeThrowsAttempted"
+                ],
+                free_throw_made=box_score_traditional_v3["boxScoreTraditional"][key]["statistics"]["freeThrowsMade"],
+                turnovers=box_score_traditional_v3["boxScoreTraditional"][key]["statistics"]["turnovers"],
+                personal_fouls=box_score_traditional_v3["boxScoreTraditional"][key]["statistics"]["foulsPersonal"],
+                plus_minus=int(box_score_traditional_v3["boxScoreTraditional"][key]["statistics"]["plusMinusPoints"]),
+            )
+            for key in team_keys
+        ]
+    )
 
 
 def _create_game_stats_from_live_playbyplay(game: Game) -> list[Stats]:
@@ -545,7 +559,7 @@ def sync_game_stats_by_game_id(game_id: str) -> None:
         except Exception as e:
             logger.info(f"live game_stats endpoint is not available. Try stats endpoint: {game_id}, {e}")
             game_stats = _create_game_stats_from_stats_endpoint(game)
-        add_stats_list(game_stats)
+        upsert_stats_list(game_stats)
     except Exception as e:
         logger.error(f"error in sync_game_stats_by_game_id: {e}")
         raise

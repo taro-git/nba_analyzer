@@ -3,7 +3,7 @@ import logging
 from nba_api.live.nba.endpoints import PlayByPlay
 from nba_api.stats.endpoints import PlayByPlayV3
 
-from batch.repositories.games.game_actions import add_game_actions
+from batch.repositories.games.game_actions import upsert_game_actions
 from batch.repositories.games.game_players import get_game_players_by_game_id
 from batch.repositories.games.games import get_game_by_game_id
 from batch.services.commons.game_clock import create_elapsed_ms_from_clock_and_period
@@ -38,7 +38,11 @@ def _create_actions_from_stats_endpoint(game: Game) -> list[GameAction]:
         for i, action in enumerate(play_by_play_v3["game"]["actions"])
         for id in [game_players[action["personId"]] if action.get("personId", None) in game_players.keys() else None]
         for team_id in [
-            action["teamId"] if action.get("teamId", None) in [game.home_team_id, game.away_team_id] else None
+            action["teamId"]
+            if action.get("teamId", None) in [game.home_team_id, game.away_team_id]
+            else action["personId"]
+            if action.get("personId", None) in [game.home_team_id, game.away_team_id]
+            else None
         ]
     ]
 
@@ -91,7 +95,7 @@ def sync_game_actions_by_game_id(game_id: str) -> None:
         except Exception as e:
             logger.info(f"live boxscore endpoint is not available. Try stats endpoint: {game_id}, {e}")
             actions = _create_actions_from_stats_endpoint(game)
-        add_game_actions(actions)
+        upsert_game_actions(actions)
     except Exception as e:
         logger.error(f"error in sync_game_actions_by_game_id: {e}")
         raise

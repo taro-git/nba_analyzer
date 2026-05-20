@@ -169,6 +169,15 @@ def upgrade() -> None:
             ["teams.id"],
         ),
         sa.PrimaryKeyConstraint("id"),
+        sa.UniqueConstraint(
+            "game_id",
+            "game_player_id",
+            "elapsed_ms",
+            name="unique_game_id_and_game_player_id_and_elapsed_ms_constraint",
+        ),
+        sa.UniqueConstraint(
+            "game_id", "team_id", "elapsed_ms", name="unique_game_id_and_team_id_and_elapsed_ms_constraint"
+        ),
     )
 
 

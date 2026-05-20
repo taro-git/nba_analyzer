@@ -76,7 +76,7 @@ def test_sync_game_actions_by_game_id_with_live_endpoint(mocker: MockerFixture) 
         "batch.services.games.game_actions.NbaApiGateway.fetch",
         return_value=_build_live_playbyplay_response(),
     )
-    add_mock = mocker.patch("batch.services.games.game_actions.add_game_actions")
+    add_mock = mocker.patch("batch.services.games.game_actions.upsert_game_actions")
 
     sync_game_actions_by_game_id(GAME_ID)
 
@@ -105,7 +105,7 @@ def test_sync_game_actions_by_game_id_with_stats_endpoint_fallback(mocker: Mocke
         raise ValueError(f"Unexpected endpoint: {endpoint_cls}")
 
     mocker.patch("batch.services.games.game_actions.NbaApiGateway.fetch", side_effect=fetch_side_effect)
-    add_mock = mocker.patch("batch.services.games.game_actions.add_game_actions")
+    add_mock = mocker.patch("batch.services.games.game_actions.upsert_game_actions")
 
     sync_game_actions_by_game_id(GAME_ID)
 

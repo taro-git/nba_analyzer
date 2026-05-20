@@ -3,7 +3,7 @@ from pytest_mock import MockerFixture
 from sqlalchemy import Engine
 from sqlmodel import Session, select
 
-from batch.repositories.games.stats import add_stats_list, get_all_stats_list
+from batch.repositories.games.stats import get_all_game_ids, upsert_stats_list
 from common.models.games.game_players import GamePlayer
 from common.models.games.games import Game
 from common.models.games.stats import Stats
@@ -16,14 +16,14 @@ def mock_engine(engine: Engine, mocker: MockerFixture) -> None:
 
 
 def _make_stats(
-    game_id: int, *, game_player_id: int | None = None, team_id: int | None = None, elapsed_ms: int = 0
+    game_id: int, *, game_player_id: int | None = None, team_id: int | None = None, elapsed_ms: int = 0, ms: int = 0
 ) -> Stats:
     return Stats(
         game_id=game_id,
         game_player_id=game_player_id,
         team_id=team_id,
         elapsed_ms=elapsed_ms,
-        ms=0,
+        ms=ms,
         points=10,
         offence_rebounds=1,
         diffence_rebounds=2,
@@ -42,27 +42,27 @@ def _make_stats(
     )
 
 
-def test_add_stats_list_adds_player_stats(
+def test_upsert_stats_list_adds_player_stats(
     mock_engine: None, seed_game: Game, seed_game_players: list[GamePlayer], session: Session
 ) -> None:
     assert seed_game.id is not None
     gp = seed_game_players[0]
-    add_stats_list([_make_stats(seed_game.id, game_player_id=gp.id)])
+    upsert_stats_list([_make_stats(seed_game.id, game_player_id=gp.id)])
     result = session.exec(select(Stats)).all()
     assert len(result) == 1
     assert result[0].game_player_id == gp.id
     assert result[0].points == 10
 
 
-def test_add_stats_list_adds_team_stats(mock_engine: None, seed_game: Game, session: Session) -> None:
+def test_upsert_stats_list_adds_team_stats(mock_engine: None, seed_game: Game, session: Session) -> None:
     assert seed_game.id is not None
-    add_stats_list([_make_stats(seed_game.id, team_id=HOME_TEAM_ID)])
+    upsert_stats_list([_make_stats(seed_game.id, team_id=HOME_TEAM_ID)])
     result = session.exec(select(Stats)).all()
     assert len(result) == 1
     assert result[0].team_id == HOME_TEAM_ID
 
 
-def test_add_stats_list_adds_many(
+def test_upsert_stats_list_adds_many(
     mock_engine: None, seed_game: Game, seed_game_players: list[GamePlayer], session: Session
 ) -> None:
     assert seed_game.id is not None
@@ -72,18 +72,56 @@ def test_add_stats_list_adds_many(
         _make_stats(seed_game.id, team_id=HOME_TEAM_ID, elapsed_ms=60000),
         _make_stats(seed_game.id, team_id=AWAY_TEAM_ID, elapsed_ms=60000),
     ]
-    add_stats_list(stats)
+    upsert_stats_list(stats)
     result = session.exec(select(Stats)).all()
     assert len(result) == 4
 
 
-def test_add_stats_list_no_action_if_empty(mock_engine: None, seed_game: Game, session: Session) -> None:
-    add_stats_list([])
+def test_upsert_stats_list_update_one(
+    mock_engine: None, seed_game: Game, seed_game_players: list[GamePlayer], session: Session
+) -> None:
+    assert seed_game.id is not None
+    stats = [
+        _make_stats(seed_game.id, game_player_id=seed_game_players[0].id),
+        _make_stats(seed_game.id, game_player_id=seed_game_players[1].id),
+    ]
+    session.add_all(stats)
+    session.commit()
+    updated_ms = 60000
+    upsert_stats_list([_make_stats(seed_game.id, game_player_id=seed_game_players[0].id, ms=updated_ms)])
+    result = session.exec(select(Stats)).all()
+    assert [s.ms for s in result if s.game_player_id == seed_game_players[0].id][0] == updated_ms
+
+
+def test_upsert_stats_list_update_many(
+    mock_engine: None, seed_game: Game, seed_game_players: list[GamePlayer], session: Session
+) -> None:
+    assert seed_game.id is not None
+    stats = [
+        _make_stats(seed_game.id, game_player_id=seed_game_players[0].id),
+        _make_stats(seed_game.id, game_player_id=seed_game_players[1].id),
+    ]
+    session.add_all(stats)
+    session.commit()
+    updated_ms = 60000
+    upsert_stats_list(
+        [
+            _make_stats(seed_game.id, game_player_id=seed_game_players[0].id, ms=updated_ms),
+            _make_stats(seed_game.id, game_player_id=seed_game_players[1].id, ms=updated_ms),
+        ]
+    )
+    result = session.exec(select(Stats)).all()
+    assert len(result) == 2
+    assert {s.ms for s in result} == set([updated_ms])
+
+
+def test_upsert_stats_list_no_action_if_empty(mock_engine: None, seed_game: Game, session: Session) -> None:
+    upsert_stats_list([])
     result = session.exec(select(Stats)).all()
     assert len(result) == 0
 
 
-def test_get_all_stats_list_returns_all(
+def test_get_all_game_ids_list_returns_all(
     mock_engine: None, seed_game: Game, seed_game_players: list[GamePlayer], session: Session
 ) -> None:
     assert seed_game.id is not None
@@ -94,10 +132,10 @@ def test_get_all_stats_list_returns_all(
     session.add_all(stats)
     session.commit()
 
-    result = get_all_stats_list()
-    assert len(result) == 2
+    result = get_all_game_ids()
+    assert set(result) == {seed_game.id}
 
 
-def test_get_all_stats_list_returns_empty_when_no_data(mock_engine: None, seed_game: Game) -> None:
-    result = get_all_stats_list()
+def test_get_all_game_ids_list_returns_empty_when_no_data(mock_engine: None, seed_game: Game) -> None:
+    result = get_all_game_ids()
     assert result == []

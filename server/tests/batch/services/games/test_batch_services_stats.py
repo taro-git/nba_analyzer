@@ -262,7 +262,7 @@ def test_sync_game_stats_by_game_id_with_live_endpoint(mocker: MockerFixture) ->
         raise ValueError(f"Unexpected endpoint: {endpoint_cls}")
 
     mocker.patch("batch.services.games.stats.NbaApiGateway.fetch", side_effect=fetch_side_effect)
-    add_mock = mocker.patch("batch.services.games.stats.add_stats_list")
+    add_mock = mocker.patch("batch.services.games.stats.upsert_stats_list")
 
     sync_game_stats_by_game_id(GAME_ID)
 
@@ -291,7 +291,7 @@ def test_sync_game_stats_by_game_id_falls_back_to_boxscore_when_playbyplay_fails
         raise ValueError(f"Unexpected endpoint: {endpoint_cls}")
 
     mocker.patch("batch.services.games.stats.NbaApiGateway.fetch", side_effect=fetch_side_effect)
-    add_mock = mocker.patch("batch.services.games.stats.add_stats_list")
+    add_mock = mocker.patch("batch.services.games.stats.upsert_stats_list")
 
     sync_game_stats_by_game_id(GAME_ID)
 
@@ -339,7 +339,7 @@ def test_sync_game_stats_by_game_id_home_player_plus_minus_is_positive(mocker: M
         raise ValueError(f"Unexpected endpoint: {endpoint_cls}")
 
     mocker.patch("batch.services.games.stats.NbaApiGateway.fetch", side_effect=fetch_side_effect)
-    add_mock = mocker.patch("batch.services.games.stats.add_stats_list")
+    add_mock = mocker.patch("batch.services.games.stats.upsert_stats_list")
 
     sync_game_stats_by_game_id(GAME_ID)
 
@@ -383,7 +383,7 @@ def test_sync_game_stats_by_game_id_with_stats_endpoint_fallback(mocker: MockerF
         raise ValueError(f"Unexpected endpoint: {endpoint_cls}")
 
     mocker.patch("batch.services.games.stats.NbaApiGateway.fetch", side_effect=fetch_side_effect)
-    add_mock = mocker.patch("batch.services.games.stats.add_stats_list")
+    add_mock = mocker.patch("batch.services.games.stats.upsert_stats_list")
 
     sync_game_stats_by_game_id(GAME_ID)
 
