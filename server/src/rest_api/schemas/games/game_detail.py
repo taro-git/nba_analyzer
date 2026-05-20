@@ -2,6 +2,7 @@ from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
 
 from common.models.games.game_actions import GameAction
+from common.models.games.game_players import GamePlayer as GamePlayerModel
 from common.models.games.stats import Stats
 from rest_api.schemas.games.game_summaries import GameSummarySchema
 from rest_api.schemas.players.players import GamePlayer
@@ -18,6 +19,8 @@ class Play(BaseModel):
     """試合の経過時間(ミリ秒)"""
     team_id: int | None
     """チームID"""
+    player_id: int | None
+    """選手ID"""
     description: str
     """アクションの詳細"""
     home_score: int | None
@@ -31,11 +34,12 @@ class Play(BaseModel):
     )
 
     @classmethod
-    def from_game_action(cls, game_action: GameAction) -> "Play":
+    def from_game_action_and_game_players(cls, game_action: GameAction, game_players: list[GamePlayerModel]) -> "Play":
         return Play(
             action_number=game_action.action_number,
             elapsed_ms=game_action.elapsed_ms,
             team_id=game_action.team_id,
+            player_id=next((gp.player_id for gp in game_players if gp.id == game_action.game_player_id), None),
             description=game_action.description,
             home_score=game_action.home_score,
             away_score=game_action.away_score,

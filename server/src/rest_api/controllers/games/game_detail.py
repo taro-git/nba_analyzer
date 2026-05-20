@@ -52,7 +52,7 @@ def get_game_detail_by_game_id(session: Session, game_id: str) -> GameDetailSche
         away_team_score=game.away_score,
         playoff_label=game.playoff_label,
         play_by_play=sorted(
-            [Play.from_game_action(p) for p in get_game_actions_by_game(session, game)],
+            [Play.from_game_action_and_game_players(p, game_players) for p in get_game_actions_by_game(session, game)],
             key=lambda p: p.action_number,
         ),
         home_team_stats=TeamStats(

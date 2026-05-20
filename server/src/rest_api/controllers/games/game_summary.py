@@ -3,20 +3,15 @@ from datetime import datetime, timezone
 from sqlmodel import Session
 
 from common.models.teams.teams import TeamProperty
-from rest_api.repositories.games.games import get_games_by_start_datetime
+from common.models.games.games import Game
+from rest_api.repositories.games.games import get_games_by_start_datetime, get_games_by_team_ids
 from rest_api.repositories.teams.teams import get_team_properties_by_ids
 from rest_api.schemas.commons import GameCategory, GameStatus, Season
 from rest_api.schemas.games.game_summaries import GameSummarySchema
 from rest_api.schemas.teams.regular_season import Team
 
 
-def get_game_summaries_by_start_datetime(
-    session: Session, from_datetime: datetime, to_datetime: datetime
-) -> list[GameSummarySchema]:
-    """
-    試合開始時刻の範囲を指定して GameSummarySchema 一覧を返します.
-    """
-    games = get_games_by_start_datetime(session, from_datetime, to_datetime)
+def _create_game_summary_schema_from_games(session: Session, games: list[Game]) -> list[GameSummarySchema]:
     seasons = {game.season for game in games}
     team_properties: dict[int, dict[int, TeamProperty]] = {}
     for season in seasons:
@@ -51,3 +46,18 @@ def get_game_summaries_by_start_datetime(
         )
         for game in games
     ]
+
+def get_game_summaries_by_start_datetime(
+    session: Session, from_datetime: datetime, to_datetime: datetime
+) -> list[GameSummarySchema]:
+    """
+    試合開始時刻の範囲を指定して GameSummarySchema 一覧を返します.
+    """
+    return _create_game_summary_schema_from_games(session, get_games_by_start_datetime(session, from_datetime, to_datetime))
+
+
+def get_game_summaries_by_team_ids(session: Session, team_ids: list[int]) -> list[GameSummarySchema]:
+    """
+    チームID 一覧を指定して GameSummarySchema 一覧を返します.
+    """
+    return _create_game_summary_schema_from_games(session, get_games_by_team_ids(session, team_ids))

@@ -4,7 +4,7 @@ from zoneinfo import ZoneInfo
 from sqlmodel import Session
 
 from common.models.games.games import Game
-from rest_api.repositories.games.games import get_game_by_game_id, get_games_by_start_datetime
+from rest_api.repositories.games.games import get_game_by_game_id, get_games_by_start_datetime, get_games_by_team_ids
 
 
 def test_get_games_by_start_datetime_returns_matched_team(session: Session, seed_games: dict[str, Game]) -> None:
@@ -74,3 +74,40 @@ def test_get_game_by_game_id_returns_none_if_not_found(session: Session, seed_ga
     game_id = "not_found"
     result = get_game_by_game_id(session, game_id)
     assert result is None
+
+
+def test_get_games_by_team_ids_returns_matched_games(session: Session, seed_games: dict[str, Game]) -> None:
+    team_ids = [1610612765, 1610612756]
+    result_ids = [g.game_id for g in get_games_by_team_ids(session, team_ids)]
+    expected_ids = [
+        seed_games[id].game_id
+        for id in seed_games.keys()
+        if seed_games[id].home_team_id in team_ids and seed_games[id].away_team_id in team_ids
+    ]
+    assert sorted(result_ids) == sorted(expected_ids)
+
+
+def test_get_games_by_team_ids_returns_matched_games_for_single_team(
+    session: Session, seed_games: dict[str, Game]
+) -> None:
+    team_ids = [1610612765]
+    result_ids = [g.game_id for g in get_games_by_team_ids(session, team_ids)]
+    # 単一チームIDの場合、ホームとアウェイの両方がそのチームIDである試合のみ（通常は存在しない）
+    expected_ids = [
+        seed_games[id].game_id
+        for id in seed_games.keys()
+        if seed_games[id].home_team_id in team_ids and seed_games[id].away_team_id in team_ids
+    ]
+    assert sorted(result_ids) == sorted(expected_ids)
+
+
+def test_get_games_by_team_ids_returns_empty_list_if_no_match(session: Session, seed_games: dict[str, Game]) -> None:
+    team_ids = [9999]
+    result_ids = [g.game_id for g in get_games_by_team_ids(session, team_ids)]
+    assert result_ids == []
+
+
+def test_get_games_by_team_ids_returns_empty_list_if_empty_input(session: Session, seed_games: dict[str, Game]) -> None:
+    team_ids: list[int] = []
+    result_ids = [g.game_id for g in get_games_by_team_ids(session, team_ids)]
+    assert result_ids == []
