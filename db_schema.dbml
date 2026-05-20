@@ -64,46 +64,22 @@ Table team_properties {
   }
 }
 
+Enum player_position {
+  "PG"
+  "SG"
+  "SF"
+  "PF"
+  "C"
+}
+
 Table players {
   id integer [pk]
-  name varchar [not null]
-  Abbreviation varchar [not null]
-  bod date [not null]
-  draft_year integer [not null]
-  position integer
+  full_name varchar [not null]
+  abbreviation varchar [not null]
+  date_of_birth date []
+  draft_year integer []
+  position player_position
   team_id integer [ref: > teams.id]
-}
-
-Table stats {
-  id integer [pk]
-  elapsed_sec integer [not null, note: 'elapsed time in the game. Ex) 2160 at the end of the 3rd quarter.']
-  sec integer [not null]
-  pts integer [not null]
-  oreb integer [not null]
-  dreb integer [not null]
-  ast integer [not null]
-  stl integer [not null]
-  blk integer [not null]
-  fg_a integer [not null]
-  fg_m integer [not null]
-  three_a integer [not null]
-  three_m integer [not null]
-  ft_a integer [not null]
-  ft_m integer [not null]
-  to integer [not null]
-  pf integer [not null]
-  plus_minus integer [not null]
-}
-
-Table player_stats {
-  stats_id integer [pk, ref: > stats.id]
-  player_id integer [not null, ref: > players.id]
-  season integer [not null, ref: > seasons.start_year]
-  num_of_played_games integer [not null]
-
-  indexes {
-    (player_id, season) [unique]
-  }
 }
 
 Enum game_status {
@@ -140,8 +116,8 @@ Table game_players {
   id integer [pk]
   game_id integer [not null, ref: > games.id]
   player_id integer [not null, ref: > players.id]
-  jearsy_num integer [not null]
-  position integer
+  jearsy_num varchar [not null]
+  position player_position
   is_home bool [not null]
   is_starter bool [not null]
   is_active bool [not null]
@@ -151,43 +127,73 @@ Table game_players {
   }
 }
 
-Table game_player_stats {
+Table stats {
+  id integer [pk]
+  game_id integer [ref: > games.id]
+  game_player_id integer [ref: > game_players.id]
+  team_id integer [ref: > teams.id]
+  elapsed_sec integer [not null, note: 'elapsed time in the game. Ex) 2160 at the end of the 3rd quarter.']
+  ms integer [not null]
+  points integer [not null]
+  offence_rebounds integer [not null]
+  diffence_rebounds integer [not null]
+  assists integer [not null]
+  steals integer [not null]
+  blocks integer [not null]
+  field_goal_attempts integer [not null]
+  field_goal_made integer [not null]
+  three_point_attempts integer [not null]
+  three_point_made integer [not null]
+  free_throw_attempts integer [not null]
+  free_throw_made integer [not null]
+  turnovers integer [not null]
+  blocked_shots_received integer
+  personal_fouls integer [not null]
+  technical_fouls integer
+  fouls_drawn integer
+  plus integer
+  plus_minus integer [not null]
+}
+
+Table player_stats {
   stats_id integer [pk, ref: > stats.id]
-  game_player_id integer [not null, ref: > game_players.id]
+  player_id integer [not null, ref: > players.id]
+  season integer [not null, ref: > seasons.start_year]
+  num_of_played_games integer [not null]
 
   indexes {
-    (stats_id, game_player_id) [unique]
+    (player_id, season) [unique]
   }
 }
 
-Table game_team_stats {
+Table team_stats {
   stats_id integer [pk, ref: > stats.id]
-  team_id integer [not null, ref: > teams.id]
+  team_id integer [ref: > teams.id]
+  season integer [ref: > seasons.start_year]
+  num_of_played_games integer [not null]
 
   indexes {
-    (stats_id, team_id) [unique]
+    (team_id, season) [unique]
   }
 }
 
-Table play_by_play {
+Table game_actions {
+  id integer [pk]
   game_id integer [ref: > games.id]
   action_number integer [not null]
-  elapsed_sec integer [not null, note: 'elapsed time in the game. Ex) 2160 at the end of the 3rd quarter.']
-  player_id integer [ref: > game_players.id, note: 'if not personal event, personId can be 0']
-  x_legacy integer [not null, note: 'nullable in live']
-  y_legacy integer [not null, note: 'nullable in live']
+  elapsed_ms integer [not null, note: 'elapsed time in the game. Ex) 2160000 at the end of the 3rd quarter.']
+  game_player_id integer [ref: > game_players.id, note: 'if not personal event, personId can be 0']
+  team_id integer [ref: > teams.id]
   description varchar [not null]
+  action_type varchar [not null]
+  sub_type varchar []
+  shot_value integer []
   home_score integer [note: 'can be "" in stats']
   away_score integer [note: 'can be "" in stats']
-  points_total integer [note: 'personal total points in live, home score plus away score in stats. there is not 0 in live.']
-  assist_player_id integer [ref: > game_players.id, note: 'only live']
-  assist_total integer [note: 'only live']
-  rebound_defensive_total integer [note: 'only live']
-  rebound_offensive_total integer [note: 'only live']
-  turnoverTotal integer [note: 'only live']
-  foul_personal_total integer [note: 'only live']
-  foul_technical_total integer [note: 'only live']
-  foul_drawn_player_id integer [ref: > game_players.id, note: 'only live']
+  x_legacy integer [note: 'nullable in live']
+  y_legacy integer [note: 'nullable in live']
 
-  Note: 'There is not block total, steal total. About substitution, there is both of In and Out and also between quarters in live, but there is not In player Id (only name in description) and between quorters in stats'
+  indexes {
+    (game_id, action_number) [unique]
+  }
 }

@@ -52,7 +52,7 @@ This application analyzes NBA players and teams based on box scores and play-by-
 ### for dev
 1. Build dev(docker)
 1. Update SQLModel
-1. Import all models in server\src\common\alembic\env.py
+1. Import all models in server\src\common\models\__init__.py
 1. Run following commands
     ```ps
     # generate migration file

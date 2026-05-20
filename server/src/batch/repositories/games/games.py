@@ -1,8 +1,43 @@
-from sqlalchemy.dialects.postgresql import insert
-from sqlmodel import Session
+from datetime import datetime
 
+from sqlalchemy.dialects.postgresql import insert
+from sqlmodel import Session, col, delete, select
+
+from batch.types import Season
 from common.db import engine
 from common.models.games.games import Game
+from common.types import GameStatus
+
+
+def get_games_by_season(season: Season) -> list[Game]:
+    """
+    シーズンを指定して Game 一覧を返します.
+    """
+    with Session(engine) as session:
+        statement = select(Game).where(col(Game.season) == season.start_year)
+        return list(session.exec(statement).all())
+
+
+def get_games_by_start_datetime(from_datetime: datetime, to_datetime: datetime, status: GameStatus) -> list[Game]:
+    """
+    試合開始時刻の範囲と試合ステータスを指定して Game 一覧を返します.
+    """
+    with Session(engine) as session:
+        statement = select(Game).where(
+            col(Game.start_epoc_sec) >= from_datetime.timestamp(),
+            col(Game.start_epoc_sec) <= to_datetime.timestamp(),
+            col(Game.status) == status,
+        )
+        return list(session.exec(statement).all())
+
+
+def get_game_by_game_id(game_id: str) -> Game | None:
+    """
+    試合ID を指定して Game を返します.
+    """
+    with Session(engine) as session:
+        statement = select(Game).where(col(Game.game_id) == game_id)
+        return session.exec(statement).one_or_none()
 
 
 def upsert_games(games: list[Game]) -> None:
@@ -50,4 +85,15 @@ def upsert_games(games: list[Game]) -> None:
         )
 
         session.exec(stmt)
+        session.commit()
+
+
+def remove_games(games: list[Game]) -> None:
+    """
+    試合を削除します.
+    """
+    game_ids = [g.game_id for g in games]
+    with Session(engine) as session:
+        statement = delete(Game).where(col(Game.game_id).in_(game_ids))
+        session.exec(statement)
         session.commit()

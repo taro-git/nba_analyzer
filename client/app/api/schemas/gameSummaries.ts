@@ -17,7 +17,7 @@ export const IGameCategory = {
   AllStar: "All Star",
 } as const;
 
-export type IGameCategory = (typeof IGameStatus)[keyof typeof IGameStatus];
+export type IGameCategory = (typeof IGameCategory)[keyof typeof IGameCategory];
 
 /**
  * API から受け取るゲームサマリーを表す schema です.
@@ -39,6 +39,7 @@ export interface IGameSummary {
  * GET リクエストのクエリパラメータを表す schema です.
  */
 export type GameSummariesQuery = {
-  from_utc: string;
+  from_utc?: string;
   to_utc?: string;
+  team_ids?: number[];
 };

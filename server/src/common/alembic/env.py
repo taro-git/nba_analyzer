@@ -4,12 +4,8 @@ from alembic import context
 from sqlalchemy import engine_from_config, pool
 from sqlmodel import SQLModel
 
+from common import models  # type: ignore # noqa: F401
 from common.db import HOST, NAME, PASSWORD, PORT, USER
-from common.models.commons.caches import Cache  # type: ignore # noqa: F401
-from common.models.commons.seasons import Season  # type: ignore # noqa: F401
-from common.models.games.games import Game  # type: ignore # noqa: F401
-from common.models.teams.regular_season_team_standings import RegularSeasonTeamStanding  # type: ignore # noqa: F401
-from common.models.teams.teams import Team  # type: ignore # noqa: F401
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
