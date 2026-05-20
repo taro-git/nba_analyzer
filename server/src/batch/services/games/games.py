@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from nba_api.stats.endpoints.leaguegamefinder import LeagueGameFinder
 from nba_api.stats.endpoints.scheduleleaguev2 import ScheduleLeagueV2
 
+from batch.repositories.games.game_actions import get_all_game_ids as get_all_game_ids_of_actions
 from batch.repositories.games.games import (
     get_games_by_season,
     remove_games,
@@ -13,7 +14,6 @@ from batch.repositories.games.games import (
     get_games_by_start_datetime as get_games_by_start_datetime_from_db,
 )
 from batch.repositories.games.stats import get_all_game_ids as get_all_game_ids_of_stats
-from batch.repositories.games.game_actions import get_all_game_ids as get_all_game_ids_of_actions
 from batch.repositories.teams.teams import get_teams
 from batch.services.nba_api.gateway import NbaApiGateway
 from batch.types import Season

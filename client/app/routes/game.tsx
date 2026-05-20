@@ -90,7 +90,7 @@ export default function Game({ loaderData }: Route.ComponentProps) {
         currentHeadToHeadRef.current?.scrollIntoView({ block: "start", behavior: "smooth" });
       });
     }
-  }
+  };
 
   // ----------------------------------------------------------------------
   // Views

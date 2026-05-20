@@ -141,13 +141,11 @@ def test_upsert_game_actions_error_on_invalid_shot_value(mock_engine: None, seed
         upsert_game_actions([_make_action(seed_game.id, action_number=0, shot_value=4)])
 
 
-def test_get_all_game_ids_list_returns_all(
-    mock_engine: None, seed_game: Game, session: Session
-) -> None:
+def test_get_all_game_ids_list_returns_all(mock_engine: None, seed_game: Game, session: Session) -> None:
     assert seed_game.id is not None
     actions = [
-            _make_action(seed_game.id, action_number=0),
-            _make_action(seed_game.id, action_number=1),
+        _make_action(seed_game.id, action_number=0),
+        _make_action(seed_game.id, action_number=1),
     ]
     session.add_all(actions)
     session.commit()

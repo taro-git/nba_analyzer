@@ -24,10 +24,9 @@ def upsert_stats_list(stats_list: list[Stats]) -> None:
     team_stats = [s for s in stats_list if s.game_player_id is None]
     with Session(engine) as session:
         if player_stats:
-            player_stmt = insert(Stats).values([
-            {k: v for k, v in a.model_dump().items() if k != "id"}
-            for a in player_stats
-        ])
+            player_stmt = insert(Stats).values(
+                [{k: v for k, v in a.model_dump().items() if k != "id"} for a in player_stats]
+            )
             player_stmt = player_stmt.on_conflict_do_update(
                 index_elements=[
                     "game_id",
@@ -59,10 +58,9 @@ def upsert_stats_list(stats_list: list[Stats]) -> None:
             )
             session.exec(player_stmt)
         if team_stats:
-            team_stmt = insert(Stats).values([
-            {k: v for k, v in a.model_dump().items() if k != "id"}
-            for a in team_stats
-        ])
+            team_stmt = insert(Stats).values(
+                [{k: v for k, v in a.model_dump().items() if k != "id"} for a in team_stats]
+            )
             team_stmt = team_stmt.on_conflict_do_update(
                 index_elements=[
                     "game_id",

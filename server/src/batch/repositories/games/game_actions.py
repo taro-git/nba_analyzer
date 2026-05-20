@@ -21,10 +21,7 @@ def upsert_game_actions(game_actions: list[GameAction]) -> None:
     if not game_actions:
         return
     with Session(engine) as session:
-        stmt = insert(GameAction).values([
-            {k: v for k, v in a.model_dump().items() if k != "id"}
-            for a in game_actions
-        ])
+        stmt = insert(GameAction).values([{k: v for k, v in a.model_dump().items() if k != "id"} for a in game_actions])
         stmt = stmt.on_conflict_do_update(
             index_elements=["game_id", "action_number"],
             set_={
