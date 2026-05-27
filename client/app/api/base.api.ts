@@ -3,7 +3,7 @@
  */
 export abstract class BaseApi<
   ReqBody = undefined,
-  QParams extends Record<string, string | number | boolean> | undefined = undefined,
+  QParams extends Record<string, string | number | boolean | string[] | number[]> | undefined = undefined,
   IRes = unknown,
   Res = unknown,
 > {
@@ -42,7 +42,17 @@ export abstract class BaseApi<
     const url = this.buildUrl();
 
     if (queryParams) {
-      url.search = new URLSearchParams(Object.entries(queryParams).map(([k, v]) => [k, String(v)])).toString();
+      const searchParams = new URLSearchParams();
+      Object.entries(queryParams).forEach(([k, v]) => {
+        if (Array.isArray(v)) {
+          v.forEach((item) => {
+            searchParams.append(k, String(item));
+          });
+        } else {
+          searchParams.append(k, String(v));
+        }
+      });
+      url.search = searchParams.toString();
     }
 
     const response = await fetch(url, {
